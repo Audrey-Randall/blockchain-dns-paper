@@ -124,18 +124,33 @@ printfolios=false}
 
 \section{Background}
 
+\randall{this is so terrible but you can't edit a blank page}
 
-Malware has to avoid the “sunk cost” problem, where malware that has 
-already been deployed can’t be changed. This is why they don’t hard-code 
-the IP of the CNC server in the deployed malware. (Actually, I think it’s 
-why they need CnC servers at all.) Miscreants need to provide a layer of 
-indirection --- a naming layer --- so that deployed malware can have a 
+To control a large number of infected hosts, malware often requires a command and control (C2) 
+center 
+to send commands or provide a location to upload data. 
+The C2 center, as a single point of failure, presents an obvious weak link for defenders to target, 
+so 
+malware authors want to preserve the ability to change its location if it gets taken down. This 
+means 
+that infected hosts must remain able to contact the C2 center even if 
+its address is changed. If defenders take down a C2 center, and the infected hosts that relied on 
+it 
+cannot find a new C2 center, those infected clients become useless. Malware authors must therefore 
+avoid a ``sunk cost'' problem, where they deploy code that knows to contact a C2 center at a 
+certain 
+location, but then lose the ability to use or update those hosts when the C2 center is taken down.
+
+To ensure that hosts remain able to contact C2 centers, modern malware generally does not hard-code 
+the address of the C2 center directly into the deployed code. Instead, malware authors need to 
+provide 
+a layer of indirection --- a naming layer --- so that deployed malware can have a 
 fixed, hard-coded destination to reach out to to get further instructions. 
-That naming layer should be resilient to takedown efforts.
+This naming layer should be resilient to takedown efforts.
 
-\subsection{What systems are well-suited for storing CNC names?}
+\subsection{What features of naming systems are desirable for storing C2 domain names?}
 
-From a malware author's perspective, an ideal system for recording CNC 
+From a malware author's perspective, an ideal naming system for recording C2 
 addresses is uncensorable at both the request level and the system level. To be 
 uncensorable at the request level, there should be no central authority that 
 has the ability to enforce a legal takedown notice for an individual record. To 
@@ -154,15 +169,42 @@ malware's presence.
 %citations that say defenders block Tor.}
 On the other side of 
 the scale, malware has repurposed ubiquitous, benign systems 
-such as social media to store CNC locations. Defenders do not 
+such as social media to store C2 addresses. Defenders do not 
 want to impose blanket bans on applications accessing social 
 media URLs, but social media companies such as Facebook and 
-Twitter have the capability, motivation, and are legally required to enforce 
+Twitter have the capability, motivation, and legal obligation to enforce 
 legal takedown requests on individual posts. 
 
-Traditional DNS is what malware uses now, with fast flux and DGA. It’s 
-vulnerable to legal takedowns because it involves centralized 
-authorities. Explain how legal takedowns work.
+\subsection{DNS-based domain names}
+
+Traditional DNS has high system-level resistance to censorship but low request-level resistance. 
+Since 
+nearly every device and application on the Internet requires DNS, enterprises and firewalls almost 
+never block it entirely. However, while DNS is a decentralized system in terms of how its 
+components 
+are replicated across the globe, it is not decentralized in terms of authority. The registrar 
+that sold a domain can be compelled to ``delete'' that domain or prevent it from being updated or 
+transferred. 
+
+The usual process for enacting a legal takedown in the United States works as 
+follows~\cite{knight_domain_2015}. Upon 
+identifying a domain that is being used as a C2 center, a law enforcement entity may choose to make 
+an Acceptable Use Policy (AUP) complaint or may immediately seek a court order compelling the 
+registrar to take down the domain. Some registrars cooperate with AUC complaints without legal 
+intervention, but others do not. If the registrar does not respond to the AUC complaint and take 
+down the domain, law enforcement may move on to using a court order. The court order commonly 
+prevents the domain from being updated or transferred rather than deleting it entirely, because if 
+the domain is deleted, it can be re-registered. The court order also specifies whether the domain 
+should continue to resolve, resolve to a new IP address specified by the order, or stop resolving 
+altogether. 
+
+Court orders may be obtained by civil parties as well. The most common method is for a company to 
+apply for a temporary restraining order (TRO), which orders the perpetrators of the offending 
+activity to cease and desist and requires any intermediaries that provide services to the 
+perpetrators to cease providing those services~\cite{kesari_deterring_2017}. The latter requirement 
+is what allows companies to require registrars to ``sinkhole'' C2 domains. 
+
+\subsection{Blockchain-based domain names}
 
 Blockchain-based naming systems present a potential threat 
 because they can provide 
@@ -349,7 +391,10 @@ depend on which of those proxies takes precedence, which is not at all clearly
 defined. 
 
 Table~\ref{tab:proxies_and_tlds} provides a summary of the TLDs and proxies 
-used by the blockchain naming systems we study. All of these proxies are 
+used by the blockchain naming systems we study. The list of proxies is not exhaustive, but 
+represents 
+a subset of the best-known proxies in use at the time of writing.
+All of these proxies are 
 centralized, which is good news for defenders: similarly to traditional 
 registrars, they are vulnerable to legal takedowns. They can be served with 
 legal takedown notices as long as they operate within a jurisdiction whose 
@@ -701,9 +746,9 @@ defenders wouldn't want to block access to it?
 %\subsection{Typo squatting}
 
 
-%\bibliographystyle{ACM-Reference-Format}
-%\bibliography{references}
-%
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
 %\appendix
 %\section{Ethics}
 %
