@@ -125,13 +125,11 @@ printfolios=false}
 
 \section{Background}
 
-\randall{this is so terrible but you can't edit a blank page}
-
-\randall{need a paragraph about what kind of malware we're talking about and what it uses C2 for}
+\randall{Need a paragraph about what kind of malware we're talking about and what it uses C2 for.
 Botnets and ransomware use C2 centers. Botnets launch DDoS attacks and send spam. People often try 
 to disable the botnet rather than prosecuting the botnet controller because you don't know who the 
 controller is and they might not be in a country that's amenable to charging people for those types 
-of crimes.
+of crimes.}
 
 What about jurisdictional obstacles? I should mention that not only is there no central authority 
 to charge, even when there is a central authority like a proxy, it might not be clear where they 
@@ -177,8 +175,9 @@ causing significant collateral damage to benign users.
 To some extent, a trade-off exists between these features. On 
 one side of the 
 spectrum, protocols like Tor provide high resistance to request-level 
-censorship, but they stand out, allowing systems like IDSes to detect the 
-malware's presence.
+censorship, but they stand out in network traffic, allowing systems like IDSes to detect the 
+malware's presence. For example, enterprise networks often block Tor entirely under the assumption 
+that none of their employees will use it for any legitimate purpose.
 %but do not have enough licit traffic to prevent authorities from 
 %blocking access to the system entirely. \randall{Cite that paper that   
 %said when you take away the malware, what's left is 80\% CSAM, and find other 
@@ -189,7 +188,9 @@ such as social media to store C2 addresses. Defenders do not
 want to impose blanket bans on applications accessing social 
 media URLs, but social media companies such as Facebook and 
 Twitter have the capability, motivation, and legal obligation to enforce 
-legal takedown requests on individual posts. 
+legal takedown requests on individual posts. Malware authors want to use systems that are balanced 
+between being difficult to block at the record level and difficult to detect and block at the 
+system level.
 
 \subsection{DNS-based domain names}
 
@@ -308,38 +309,37 @@ effective interventions might be staged.
 	\label{fig:malware_contacting_cnc}
 \end{figure*}
 
-Anything in Figure~\ref{fig:malware_contacting_cnc} in green is centralized 
-enough to have to respond to a takedown request. Anything in yellow is 
-more difficult because taking it down would have collateral damage, and in 
-orange it's probably impossible to take down because it's truly distributed and 
-very resilient to takedowns.
+We have established that malware requires a naming layer to access its C2 centers, and 
+that blockchain-based naming systems are attractive options for implementing such a naming layer. 
+We will now discuss the fundamental requirements of distributed naming systems and how 
+these requirements present challenges and advantages to defenders. The first such fundamental 
+requirement is accessing the distributed system.
 
-Given that malware requires a naming layer and it’s useful to have it on a 
-blockchain, it can access it in two ways (step 1 in 
-Figure~\ref{fig:malware_contacting_cnc}:
-\begin{itemize}
-	\item Using a proxy: These are centralized, so still good points for 
-	intervention. (Insert table of proxies we've found?)
-	\item Being a first class member of a chain: You find the nodes using 
-	bootstrap nodes then. These are challenging for defenders to take down bc 
-	of collateral damage, but can be blocklisted by IDS, 
-	enterprises, antivirus. 
-\end{itemize}
-
-Accessing a distributed, peer-to-peer system for the first 
-time requires knowing the address of a participating node 
-that is already connected to the system. In general, there 
+To access name records stored on any distributed system like a blockchain, infected hosts must 
+first obtain access to the blockchain itself. Accessing any distributed, peer-to-peer system for 
+the first time requires learning the address of at least one participating node. In general, there 
 are two methods for finding such an address: connecting to a 
-proxy with a known domain or IP that is itself a full member 
-of the system, or acting as a full member of the system 
-yourself and utilizing the peer-to-peer discovery protocol 
-used by all system nodes. The latter approach requires 
-knowing a list of ``bootstrap nodes.'' A third option, a 
+proxy that already knows how to reach a member of the system, or acting 
+as a full member of the system yourself and utilizing its peer-to-peer discovery protocol. The 
+latter approach requires knowing a list of ``bootstrap nodes.'' For example, Ethereum uses a list 
+of bootstrap nodes that are hard-coded into various client implementations. Bitcoin 
+stores lists of nodes in DNS TXT records maintained by volunteers, as well as hard-coded 
+lists~\cite{citation_needed}. A third option, a 
 local discovery protocol that floods the network with 
 messages looking for nodes, has not been adopted by any major 
-blockchains that we are aware of. Such an approach would be 
-very ``noisy'' and as such unlikely to be favored by malware, 
-so we do not discuss it further.
+blockchains that we are aware of. Such an approach would only be successful if the nodes running 
+the blockchain were ubiquitous. It would also be very ``noisy'' and so unlikely to be favored by 
+malware, so we do not discuss it further. Figure~\ref{fig:malware_contacting_cnc} shows the options 
+infected hosts may choose from when connecting to a decentralized naming system, which we now 
+discuss in more detail.
+
+%Anything in Figure~\ref{fig:malware_contacting_cnc} in green is centralized 
+%enough to have to respond to a takedown request. Anything in yellow is 
+%more difficult because taking it down would have collateral damage, and in 
+%orange it's probably impossible to take down because it's truly distributed and 
+%very resilient to takedowns.
+
+
 
 \subsection{Accessing blockchains using proxies}
 
@@ -380,9 +380,9 @@ so we do not discuss it further.
 	\label{tab:proxies_and_tlds}
 \end{table}
 
-To resolve a blockchain-based name, users have several choices. Most large 
+To resolve a blockchain-based name by using a proxy, users have several choices. Most large 
 browsers, such as Safari, Chrome, and Firefox, do not support any blockchain 
-naming systems, but several extensions allow users to resolve names from ENS, 
+naming systems naively, However, several extensions allow users to resolve names from ENS, 
 Handshake, and Unstoppable Domains. These extensions rely on proxies that use 
 DoH to send a resolution request to a server that can resolve the name. We 
 note that such a server does not need to make a lookup to the chain every time 
@@ -414,7 +414,8 @@ collision depends on which resolution method they use. If the user has multiple
 proxies set up --- for example, multiple browser extensions installed that each 
 try to resolve domains with a specific TLD --- then the record received will 
 depend on which of those proxies takes precedence, which is not at all clearly 
-defined. 
+defined. This lack of centralized governance enables several classes of attacks, such as squatting 
+and phishing, which are beyond the scope of this paper.
 
 Table~\ref{tab:proxies_and_tlds} provides a summary of the TLDs and proxies 
 used by the blockchain naming systems we study. The list of proxies is not exhaustive, but 
@@ -423,10 +424,10 @@ a subset of the best-known proxies in use at the time of writing.
 All of these proxies are 
 centralized, which is good news for defenders: similarly to traditional 
 registrars, they are vulnerable to legal takedowns. They can be served with 
-legal takedown notices as long as they operate within a jurisdiction whose 
-legal system is amenable to such efforts, or taken down through serving legal 
-notices to their hosting providers. While these interventions are not 
-bulletproof, they are subject to the same advantages and disadvantages as 
+legal takedown notices and compelled to stop giving access to abused domains, as long as they 
+operate within a jurisdiction amenable to such efforts. A centralized proxy could also be taken 
+down entirely by serving a takedown order to its hosting provider. While these interventions are 
+not bulletproof, they are subject to the same advantages and disadvantages as 
 interventions on traditional registrars. Thus, centralized proxies return the 
 distributed naming ecosystem to a state similar to the DNS ecosystem, from a 
 defender's point of view. However, while proxies simplify the process of 
@@ -479,20 +480,61 @@ legitimate users attempting to join the chain. As such,
 bootstrap nodes are a more difficult place to stage an 
 effective defender intervention than centralized proxies. 
 
+Prohibiting malware from accessing a blockchain by intervening with the 
+bootstrap nodes poses challenges compared to staging interventions at centralized proxies. If 
+defenders take the bootstrap nodes down entirely, they risk causing collateral damage, by blocking 
+access to the chain for licit users. However, because the IP addresses of the bootstrap nodes are 
+public, defenders could also choose to add them to blocklists: IDSes, enterprise firewalls, or ISP 
+routers can drop traffic intended for those destinations. The blocklist approach is very similar to 
+blocking any other malicious IP addresses, and is subject to the usual challenges. Defenders must 
+keep blocklists up-to-date as malware authors update the IPs they connect to, and malware authors 
+could quickly pivot from using published IP addresses to IPs of nodes that they run 
+themselves which are not publicly known. To the advantage of defenders, any time malware authors 
+are forced to update the IP addresses that bootstrap nodes may be found at, they run 
+afoul of the ``sunk cost'' problem where already-deployed malware that cannot be updated becomes 
+useless. A similar argument applies if malware chooses to access bootstrap nodes using hard-coded 
+DNS domain names instead of hard-coded IP addresses. Additionally, traditional interventions 
+against domain names apply in that situation as well. Thus, while intervening at bootstrap nodes 
+poses more of a challenge than intervening at centralized proxies, defenders still have viable 
+options available.
+
 \subsection{Naming record formats}
 
-Once you've contacted the naming layer, you need to fetch the record that tells 
-you how to get to your CNC server. 
-The record stored in the naming layer can take 
-several forms. The three that we saw were IP addresses, 
-traditional domains, and links to distributed file storage 
-systems like IPFS and SkyNet. It's theoretically possible 
-that malware could store other types of records, like links 
-to social media posts, too. All of these record types except 
-for the DS addresses are subject to all of the usual 
-interventions. Additionally, because all blockchain records 
+If malware successfully contacts the naming layer, it can then fetch the record that allows it to 
+access its C2 center. 
+This record can take several forms. The three that we observed in existing blockchain naming 
+systems were IP addresses, 
+traditional DNS domains, and addresses to distributed file storage 
+systems like IPFS and SkyNet. We refer to these addresses as ``distributed storage'' (DS) 
+addresses. Some naming systems allow users to store arbitrary text as records, which would allow 
+malware to use nonstandard record types like links to social media posts. 
+
+Each of these record types are subject to all of the traditional interventions that have already 
+been described, except one: DS addresses. Distributed storage systems present a further challenge 
+to defenders that goes beyond the challenges of decentralized naming. They enable the 
+possibility of running an entire C2 center on a blockchain-based system that has no central 
+authority capable of responding to a takedown request. In this respect, they provide a limited form 
+of ``bulletproof'' hosting, and present their own unique challenges for 
+both malware authors and defenders.
+
+The decentralized storage systems available today do not offer the ability to host dynamic 
+websites, so any C2 center implemented entirely on such a system must be a simple file with no 
+dynamic content. Additionally, today's DS systems are content-addressed, which presents a challenge 
+for malware authors that wish to hard-code the DS address of their C2 center into their payloads. 
+If the file that represents the C2 server changes, its address will change as well, because the 
+address is created from a hash of the file.
+
+Some DS systems do not have redundancy, which raises the possibility of discovering the particular 
+machine(s) responsible for hosting a C2 server and seizing it. 
+
+
+\randall{where do I put this? Additionally, because all blockchain records 
 are public, anyone can fetch those records including 
-defenders. The DS addresses are the only new thing, so we'll 
+defenders. You could theoretically scrape a blockchain looking for records that match a known 
+malicious format or with malicious traits of some sort (owned by the same wallet?) and try to seize 
+whatever those records point to.} 
+
+The DS addresses are the only new thing, so we'll 
 focus on those next. Also, you can only use a DS address if 
 your CNC server can be implemented as a static file.
 
@@ -693,6 +735,15 @@ defenders wouldn't want to block access to it?
 	\item Affordable txns
 	\item Widespread browser adoption
 \end{itemize}
+
+\section{Conclusion}
+
+While decentralized naming and hosting systems pose challenges, they cannot entirely 
+eliminate their reliance on systems with centralized authority. Whenever malware uses a centralized 
+resource to enable its use of decentralized ones, defenders can intervene. Defenders cannot serve 
+legal takedown orders to a centralized entity to take 
+down a blockchain domain, but they can prevent malware from accessing the blockchain in the first 
+place, or target the DNS domain or IP address that the blockchain domain resolves to.
 
 %\section{How big of a threat is blockchain DNS?}
 %The original goal of this paper was to say whether malware 
