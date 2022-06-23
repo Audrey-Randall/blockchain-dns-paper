@@ -90,7 +90,8 @@ printfolios=false}
 \section{Introduction}
 
 \begin{itemize}
-	\item Malware uses DNS to reach CNC servers. 
+	\item Malware, particularly botnets (any other types? ransomware?) uses DNS to reach CNC 
+	servers. 
 	\begin{itemize}
 		\item Malware needs a naming layer because of the 
 		sunk infrastructure cost: 
@@ -125,6 +126,21 @@ printfolios=false}
 \section{Background}
 
 \randall{this is so terrible but you can't edit a blank page}
+
+\randall{need a paragraph about what kind of malware we're talking about and what it uses C2 for}
+Botnets and ransomware use C2 centers. Botnets launch DDoS attacks and send spam. People often try 
+to disable the botnet rather than prosecuting the botnet controller because you don't know who the 
+controller is and they might not be in a country that's amenable to charging people for those types 
+of crimes.
+
+What about jurisdictional obstacles? I should mention that not only is there no central authority 
+to charge, even when there is a central authority like a proxy, it might not be clear where they 
+operate from and which jurisdiction you should try to get the takedown order from, because the 
+blockchain bros prioritize anonymity and a lot of projects are run by people who only ever reveal 
+pseudonyms. On the other hand, a lot of proxies so far are US-based aren't they? That will make 
+them easier to serve takedowns to because the US has laws that are good for that sort of thing.
+
+
 
 To control a large number of infected hosts, malware often requires a command and control (C2) 
 center 
@@ -178,13 +194,11 @@ legal takedown requests on individual posts.
 \subsection{DNS-based domain names}
 
 Traditional DNS has high system-level resistance to censorship but low request-level resistance. 
-Since 
-nearly every device and application on the Internet requires DNS, enterprises and firewalls almost 
-never block it entirely. However, while DNS is a decentralized system in terms of how its 
-components 
-are replicated across the globe, it is not decentralized in terms of authority. The registrar 
-that sold a domain can be compelled to ``delete'' that domain or prevent it from being updated or 
-transferred. 
+Since nearly every device and application on the Internet requires DNS, enterprises and firewalls 
+almost never block it entirely. However, while DNS is a decentralized system in terms of how its 
+components are replicated across the globe, it is not decentralized in terms of authority. The 
+registrar that sold a domain can be compelled to ``delete'' that domain or prevent it from being 
+updated or transferred. 
 
 The usual process for enacting a legal takedown in the United States works as 
 follows~\cite{knight_domain_2015}. Upon 
@@ -194,9 +208,9 @@ registrar to take down the domain. Some registrars cooperate with AUC complaints
 intervention, but others do not. If the registrar does not respond to the AUC complaint and take 
 down the domain, law enforcement may move on to using a court order. The court order commonly 
 prevents the domain from being updated or transferred rather than deleting it entirely, because if 
-the domain is deleted, it can be re-registered. The court order also specifies whether the domain 
-should continue to resolve, resolve to a new IP address specified by the order, or stop resolving 
-altogether. 
+the domain is deleted, it can be re-registered by the malware authors. The court order also 
+specifies whether the domain should continue to resolve, resolve to a new IP address specified by 
+the order, or stop resolving altogether. 
 
 Court orders may be obtained by civil parties as well. The most common method is for a company to 
 apply for a temporary restraining order (TRO), which orders the perpetrators of the offending 
@@ -204,25 +218,37 @@ activity to cease and desist and requires any intermediaries that provide servic
 perpetrators to cease providing those services~\cite{kesari_deterring_2017}. The latter requirement 
 is what allows companies to require registrars to ``sinkhole'' C2 domains. 
 
+Legal domain takedown orders are a critical tool for defenders to disable botnets. For example, 
+Microsoft obtained various court orders allowing it to sinkhole the C2 servers of the botnet 
+Citadel in 2013. Microsoft successfully argued that Citadel caused the Windows operating system to 
+behave maliciously and frustrate users while still bearing Microsoft trademarks, as well as forcing 
+Microsoft to spend money on security features to combat it~\cite{lerner_microsoft_2014}. The 
+Coreflood, Kelihos, and Rustock botnets were each disabled using legal takedown orders obtained by 
+Microsoft, Pfizer (which claimed to suffer reputational harm because Rustock sent spam emails for 
+counterfeit pharmaceuticals), and the Department of Justice~\cite{kesari_deterring_2017}. These 
+takedowns are possible because in each case, some centralized entity had control of the C2 servers' 
+domain names, and thus had the capability to take them down when legally compelled to. Malware 
+authors are thus incentivized to find naming systems that are not vulnerable to legal takedowns.  
+
 \subsection{Blockchain-based domain names}
 
 Blockchain-based naming systems present a potential threat 
-because they can provide 
-both qualities: they are difficult to censor at the request 
-level as well as the system level. Blockchains are designed 
-to prevent anyone from changing a record once it has been 
-created, except for the record's owner. No central authority 
+because they claim to be ``uncensorable:'' no central authority 
 controls blockchain domains in the same way that registrars 
-control traditional DNS names. Thus, even the companies 
-selling blockchain domains do not have the capability to 
-comply with a legal takedown request. Furthermore, even if a 
-domain owner changes a domain record, the previous record 
-will still be available on the chain: it cannot be deleted. 
-Furthermore, some blockchains, such as Bitcoin and Ethereum, have recently 
+control traditional DNS names. In general, it is not possible to modify or 
+delete a record on a blockchain without controlling the record's private key. Once a domain has 
+been registered, even the company that sold it 
+cannot modify it, because the private key that owns it is not known to the company. The record is 
+also stored immutably on the blockchain for as long as the chain 
+exists, even if the owner later modifies or deletes it. Blockchain-based naming systems therefore 
+have high resistance to request-level censorship.
+
+Furthermore, some blockchains have enough use cases to be challenging to block wholesale without 
+harming licit users. Blockchains such as Bitcoin and Ethereum have recently 
 skyrocketed in popularity as investors became interested in cryptocurrency as 
-an asset class. Because these blockchains are no longer niche systems of 
-interest only to a small group of technologically-savvy users, blocking access 
-to them entirely will be impossible without angering a large number of 
+an asset class. Because these blockchains are no longer niche systems, used only by a small group 
+of technologically-savvy users, blocking access 
+to them entirely may be difficult without angering a large number of 
 legitimate users. As far as we are aware, cryptocurrencies and the blockchains 
 they rely on are the first examples of strongly censorship-resistant systems 
 that have gained a substantial community of legitimate users around the world.
@@ -545,6 +571,15 @@ checked Blockstack).
 	with .crypto TLDs}
 	\label{fig:cns_records}
 \end{figure}
+
+\randall{I don't know where to put this} Botnets often cycle through domain names quickly, to 
+replace blacklisted domains or domains that have been seized, or prevent defenders from seizing 
+them~\cite{nadji_beheading_2013}. In general terms, DNS domains are cheap and easily replaceable 
+resources, as long as 
+the ``sunk cost'' problem is avoided. As long as deployed malware knows which domains it should 
+contact, it can easily cycle through many \randall{how many?} per day. Describe fast flux and DGA.
+
+Blockchain-based domains on chains with high transaction costs change this equation.
 
 
 Now let's describe the specific chains in more detail. These 
