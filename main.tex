@@ -551,38 +551,12 @@ Name-specific chains, such as Namecoin, Emercoin, and
 Handshake, tend to have fewer participants, less popularity, 
 and lower transaction fees. General-purpose chains, such as 
 Bitcoin and Ethereum, have naming systems built on top of the 
-underlying chain, such as ENS, Unstoppable Domains, and 
-Blockstack. These chains have high transaction or gas fees 
-and the names are more expensive to buy (except haven't 
-checked Blockstack). 
+underlying chain. Examples of these naming systems include ENS, Unstoppable Domains, and 
+Blockstack. These chains have higher transaction or gas fees, which users must pay whenever they 
+modify a domain's record, and the names tend to be much more expensive to purchase. 
 
 \subsection{Challenges on general-purpose chains}
-
-\begin{itemize}
-	\item High monetary cost of txns
-	\begin{itemize}
-		\item Defenders can't pre-register DGA domains
-		\item But for malware authors, making fast flux work 
-		is harder. 
-	\end{itemize}
-	\item Blocking malware's access to the chain
-	\begin{itemize}
-		\item Can't just keep every computer on the Internet 
-		from accessing the chain, via IDS or whatnot, because 
-		too many legit users.
-	\end{itemize}
-	\item \randall{Where do I put this?} Seizing control of 
-	the wallet that owns a domain: 
-	What about hosted wallets? If malware authors are using 
-	hosted wallets to own the blockchain DNS domains, the 
-	hosting service like Coinbase could presumably seize 
-	them, because it has the private keys. The solution is 
-	just to not use hosted wallets, but is that possible with 
-	the way ENS and UD are set up? Even if it's hard, you 
-	could transfer the domains to a non-hosted wallet as soon 
-	as you make them. So probably not a good intervention 
-	point, too easy to evade. 
-\end{itemize}
+\randall{Say somewhere that reads don't cost anything, only writes}
 
 \begin{figure}[t]
 	\centering
@@ -599,20 +573,34 @@ checked Blockstack).
 	\label{fig:cns_records}
 \end{figure}
 
-\randall{I don't know where to put this} Botnets often cycle through domain names quickly, to 
-replace blacklisted domains or domains that have been seized, or prevent defenders from seizing 
-them~\cite{nadji_beheading_2013}. In general terms, DNS domains are cheap and easily replaceable 
-resources, as long as 
-the ``sunk cost'' problem is avoided. As long as deployed malware knows which domains it should 
-contact, it can easily cycle through many \randall{how many?} per day. Describe fast flux and DGA.
+Botnets often cycle through domain names and IP addresses for their C2 servers quickly, to replace 
+blocklisted domains and IPs or prevent defenders from seizing them~\cite{nadji_beheading_2013}. 
+Malware authors commonly use two strategies to cycle through records: fast flux and DGAs. Fast flux 
+is the practice of storing multiple records with low TTLs at a domain, and changing the records as 
+soon as the TTL expires. This allows a domain to resolve to a different group of IP addresses every 
+few minutes~\cite{holz_measuring_2008}. The IP addresses in question belong to a pool of 
+compromised machines that can then route requests to the true C2 server. Fast flux increases the 
+number of machines defenders must seize or neutralize, because if any of the compromised machines 
+are still routing traffic, the system still works. However, fast flux is still vulnerable to domain 
+takedowns. DGAs (Domain Generation Algorithms) address this weakness by cycling through domains as 
+well as IP addresses. By randomly generating a large number of domains and only using a few of them 
+to host C2 servers, malware authors can evade blocklists and  
+takedowns~\cite{antonakakis_throw-away_2012}.
 
-Blockchain-based domains on chains with high transaction costs change this equation.
+Generally speaking, DNS domains are cheaper, easier to modify, and easier to replace than IP 
+addresses, because each IP address represents a compromised machine while new domains can be 
+purchased inexpensively. Blockchain-based domains on chains with high transaction costs, such as 
+Bitcoin and Ethereum, change this norm. Malware authors must pay transaction fees, which can 
+sometimes be quite high, to register or modify their domains. We found that registering a new name 
+on the Unstoppable Domains service cost nearly \$80 in gas fees alone during a period of high fees. 
+The cost of the name alone was \$10. While licit users may wait for fees to be low at times of low 
+network congestion, malware authors may not have that choice, since they need to modify records as 
+soon as possible after their previous records become blocklisted. Otherwise, their botnets might 
+experience downtime. The high transaction cost poses challenges for defenders as well: it is 
+impractical to pre-register every domain that a DGA can generate to prevent malware authors from 
+registering them themselves. 
 
-
-Now let's describe the specific chains in more detail. These 
-systems are advertised differently - they mostly store 
-wallet address records even though they're set up like DNS, 
-with registrars and registries. 
+We now describe specific Ethereum-based naming systems in more detail.
 
 \subsubsection{ENS}
 
@@ -633,6 +621,25 @@ the high cost of txns. If the cost goes down, or defenders
 block/take down the cheaper alternatives, malware might be 
 forced to use the large chains. However, malware still seems 
 to be using the small chains (Namecoin and Emercoin) a lot.
+
+\subsubsection{Low malware adoption of Ethereum-based naming services}
+
+So far, we have not found evidence that malware authors are 
+transitioning to Ethereum-based naming services. We suspect that the high cost in 
+comparison to systems like Namecoin and Emercoin is a factor in the apparent low adoption rate. 
+Another factor is that systems like ENS and Unstoppable Domains are not advertised as drop-in 
+replacements for DNS. Rather than being intended specifically to resolve to IP addresses, these 
+naming systems often translate a human-readable name to a \emph{wallet address} instead. While 
+users can still store IP addresses, very few choose to do so. \randall{need numbers here or later 
+in specific chain section}. Some users store the addresses for distributed storage systems, but the 
+majority of configured records store wallet addresses. We also note that a high percentage of names 
+on ENS and Unstoppable Domains are not configured to have records at all. There may be a few 
+reasons why: first, while purchasing a domain is very straightforward, adding a record requires 
+interacting with smart contracts on the blockchain, because only the owner of the domain may modify 
+its records. The company that sold the domain no longer has the ability to add records for the user 
+unless the user chooses to park their domain in the company's wallet-hosting service. This 
+requirement is not obvious at the purchasing step. Second, a large number of names appear to be 
+purchased as speculative assets rather than because users wish to utilize them directly. 
 
 \section{Challenges on small chains}
 \begin{itemize}
@@ -710,6 +717,16 @@ Handshake stats:
 	hosting provider site. One points to 1.1.1.1, and two 
 	look like someone's unconfigured personal website.
 \end{itemize}
+
+\section{Seizing wallets}
+
+The CEO of Unstoppable Domains, Matthew Gould, stated in an email that Unstoppable ``prevented the 
+registration of domains associated with known pirating software or other types of IP theft and 
+fraud.'' Unstoppable can also seize a domain if that domain is hosted by Unstoppable's custody 
+wallet, instead of in their own wallet. In fact, other wallet hosting services, such as Coinbase's, 
+could presumably also seize wallets that store domains, since the private keys of those wallets are 
+known to the service. However, we note that seizing hosted wallets may not be a reliable 
+intervention, because malware authors can evade this tactic by simply using self-hosted wallets. 
 
 \section{What might cause a naming system to present a threat?}
 
