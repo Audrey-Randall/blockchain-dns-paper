@@ -234,69 +234,54 @@ authors are thus incentivized to find naming systems that are not vulnerable to 
 \subsection{Blockchain-based domain names}
 
 Blockchain-based naming systems present a potential threat 
-because they claim to be ``uncensorable:'' no central authority 
+because they claim to be immune to takedowns. No central authority 
 controls blockchain domains in the same way that registrars 
 control traditional DNS names. In general, it is not possible to modify or 
 delete a record on a blockchain without controlling the record's private key. Once a domain has 
-been registered, even the company that sold it 
-cannot modify it, because the private key that owns it is not known to the company. The record is 
-also stored immutably on the blockchain for as long as the chain 
-exists, even if the owner later modifies or deletes it. Blockchain-based naming systems therefore 
-have high resistance to request-level censorship.
+been registered, its ownership is passed to the purchaser, after which point even the company that 
+sold it cannot modify it. The record is also stored immutably on the blockchain for as long as the 
+chain exists, even if the owner later modifies or deletes it, because historical recods are part of 
+the blockchain and cannot be erased. Blockchain-based naming systems therefore have high resistance 
+to request-level censorship.
 
-Furthermore, some blockchains have enough use cases to be challenging to block wholesale without 
+Furthermore, some blockchains are popular enough to be challenging to block without 
 harming licit users. Blockchains such as Bitcoin and Ethereum have recently 
 skyrocketed in popularity as investors became interested in cryptocurrency as 
-an asset class. Because these blockchains are no longer niche systems, used only by a small group 
-of technologically-savvy users, blocking access 
+an asset class. Because these blockchains are no longer niche systems used only by a few 
+technologically-savvy users, blocking access 
 to them entirely may be difficult without angering a large number of 
 legitimate users. As far as we are aware, cryptocurrencies and the blockchains 
 they rely on are the first examples of strongly censorship-resistant systems 
 that have gained a substantial community of legitimate users around the world.
 
-Therefore, blockchain is likely to get used more in the future as a naming 
-layer for the addresses of CNC servers. In fact, we already see some malware 
-using it. However, blockchain is not as invincible as it claims. (summary of 
-examples?)
+Blockchain is therefore an attractive option for malware authors to use as a naming 
+layer for C2 server addresses. In fact, some malware is already exploiting these tools.
+BazarLoader uses the Emercoin ``.bazar'' TLD to record the domains of its C2 
+servers~\cite{brandt_bazarloader_2021}. The Namecoin TLD 
+``.bit'' is used by the
+Necurs botnet~\cite{dgas_of_necurs}, the Chthonic banking 
+trojan~\cite{malware_traffic_analysis_2016}, Smoke Loader/Dofoil, Backdoor.Teamviewer, Shifu, 
+and TinyNuke~\cite{abusech_2017, mackie_cryptodns_2018}.
 
-In the remainder of this work, we detail the specific 
-challenges posed by the blockchain DNS ecosystem to malware 
-defenders, as well as the pieces of the ecosystem where 
+However, we find that blockchain domains are not as invincible as they claim. While sinkholing 
+blockchain domains through their registrars is not possible, blockchain domains have two different 
+weaknesses that DNS does not have: accessing the system and modifying records.
+
+ Blockchain domains are not accessible through traditional DNS. Instead, malware 
+must find a way to contact a member of the blockchain to resolve its chosen domain. Malware authors 
+can implement this in two ways: they can either use a centralized proxy with a known domain to gain 
+access to the blockchain, or they can act as first-class participants of the blockchain themselves, 
+and participate in the peer-to-peer discovery protocol. Both approaches present opportunities for 
+defenders to intervene. 
+
+Modifying records on blockchains also poses new challenges for both defenders and malware authors. 
+Modifications are usually more expensive (in terms of money) than in DNS, making fast flux or DGA 
+impractical on some chains. Similarly, if a defender wishes to register all domains that a DGA 
+might produce, this becomes expensive on some chains.
+
+In the remainder of this work, we detail the specific challenges posed by the blockchain DNS 
+ecosystem to malware authors and defenders, as well as the pieces of the ecosystem where 
 effective interventions might be staged.
-
-%Blockchains provide two censorship-resistant properties that 
-%are desirable to malware authors. First, once a record 
-%is created on the chain and sufficient blocks have been added 
-%on top of it, it can only be updated by its owner. 
-%Second, a client can access the entire blockchain as long as 
-%it can reach a single participating node. However, blockchain 
-%ecosystems still provide opportunities for defenders to stage 
-%interventions against malware: most notably, when malware 
-%connects to the chain for the first time. 
-
-
-%the censorship-resistant properties of blockchains are only 
-%guaranteed for transactions on the chain itself. 
-
-%Blockchains typically present two challenges---usability and 
-%performance---that incentivize users to introduce off-chain, 
-%centralized authorities into the ecosystem. These 
-%centralized 
-%authorities can be legally compelled to enact takedown 
-%requests. For example, most users connect to blockchains via 
-%centralized proxies rather than by running their own nodes, 
-%because running a node typically involves significant energy 
-%and hardware resources. Additionally, many current users of 
-%blockchain DNS domains store their records on chain in the 
-%form of traditional DNS domains, rather than IP addresses. 
-%These traditional domains are subject to the authority of 
-%the 
-%registrars that issued them. Some chains also present a 
-%third 
-%challenge: the high monetary cost of transactions, which 
-%makes creating and updating records difficult for malware 
-%authors and defenders alike. 
-
 
 \section{Accessing records}
 
@@ -348,7 +333,7 @@ discuss in more detail.
 		\toprule
 		Name system & TLDs & Proxies \\
 		\midrule
-		Namecoin & .bit & \\
+		Namecoin & .bit & BDNS \\
 		Emercoin & .lib, & PeerName,  \\
 		& .bazar, & friGate, \\
 		& .coin, & OpenNIC \\
@@ -382,7 +367,7 @@ discuss in more detail.
 
 To resolve a blockchain-based name by using a proxy, users have several choices. Most large 
 browsers, such as Safari, Chrome, and Firefox, do not support any blockchain 
-naming systems naively, However, several extensions allow users to resolve names from ENS, 
+naming systems natively. However, several extensions allow users to resolve names from ENS, 
 Handshake, and Unstoppable Domains. These extensions rely on proxies that use 
 DoH to send a resolution request to a server that can resolve the name. We 
 note that such a server does not need to make a lookup to the chain every time 
@@ -511,8 +496,8 @@ malware to use nonstandard record types like links to social media posts.
 
 Each of these record types are subject to all of the traditional interventions that have already 
 been described, except one: DS addresses. Distributed storage systems present a further challenge 
-to defenders that goes beyond the challenges of decentralized naming. They enable the 
-possibility of running an entire C2 center on a blockchain-based system that has no central 
+to defenders that goes beyond the challenges of decentralized naming. They enable malware authors 
+to run an entire C2 center on a blockchain-based system that has no central 
 authority capable of responding to a takedown request. In this respect, they provide a limited form 
 of ``bulletproof'' hosting, and present their own unique challenges for 
 both malware authors and defenders.
