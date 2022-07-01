@@ -90,7 +90,8 @@ printfolios=false}
 \section{Introduction}
 
 \begin{itemize}
-	\item Malware, particularly botnets (any other types? ransomware?) uses DNS to reach CNC 
+	\item Malware, particularly botnets (any other types? ransomware?) 
+	uses DNS to reach CNC 
 	servers. 
 	\begin{itemize}
 		\item Malware needs a naming layer because of the 
@@ -125,46 +126,69 @@ printfolios=false}
 
 \section{Background}
 
-\randall{Need a paragraph about what kind of malware we're talking about and what it uses C2 for.
-Botnets and ransomware use C2 centers. Botnets launch DDoS attacks and send spam. People often try 
-to disable the botnet rather than prosecuting the botnet controller because you don't know who the 
-controller is and they might not be in a country that's amenable to charging people for those types 
+\randall{Need a paragraph about what kind of malware we're talking about 
+and what it uses C2 for.
+Botnets and ransomware use C2 centers. Botnets launch DDoS attacks and send 
+spam. People often try 
+to disable the botnet rather than prosecuting the botnet controller because you 
+don't know who the 
+controller is and they might not be in a country that's amenable to charging 
+people for those types 
 of crimes.}
 
-What about jurisdictional obstacles? I should mention that not only is there no central authority 
-to charge, even when there is a central authority like a proxy, it might not be clear where they 
-operate from and which jurisdiction you should try to get the takedown order from, because the 
-blockchain bros prioritize anonymity and a lot of projects are run by people who only ever reveal 
-pseudonyms. On the other hand, a lot of proxies so far are US-based aren't they? That will make 
-them easier to serve takedowns to because the US has laws that are good for that sort of thing.
+\randall{What about jurisdictional obstacles? I should mention that not only is 
+there 
+no central authority 
+to charge, even when there is a central authority like a proxy, it might 
+not be clear where they 
+operate from and which jurisdiction you should try to get the takedown order 
+from, because the 
+blockchain bros prioritize anonymity and a lot of projects are run by people 
+who only ever reveal 
+pseudonyms. On the other hand, a lot of proxies so far are US-based 
+aren't they? That will make 
+them easier to serve takedowns to because the US has laws that are good for 
+that sort of thing.}
 
 
 
-To control a large number of infected hosts, malware often requires a command and control (C2) 
+To control a large number of infected hosts, malware often requires a command 
+and control (C2) 
 center 
 to send commands or provide a location to upload data. 
-The C2 center, as a single point of failure, presents an obvious weak link for defenders to target, 
+The C2 center, as a single point of failure, presents an obvious weak link 
+for defenders to target, 
 so 
-malware authors want to preserve the ability to change its location if it gets taken down. This 
+malware authors want to preserve the ability to change its location if it gets 
+taken down. This 
 means 
 that infected hosts must remain able to contact the C2 center even if 
-its address is changed. If defenders take down a C2 center, and the infected hosts that relied on 
+its address is changed. If defenders take down a C2 center, and the 
+infected hosts that relied on 
 it 
-cannot find a new C2 center, those infected clients become useless. Malware authors must therefore 
-avoid a ``sunk cost'' problem, where they deploy code that knows to contact a C2 center at a 
+cannot find a new C2 center, those infected clients become useless. Malware 
+authors must therefore 
+avoid a ``sunk cost'' problem, where they deploy code that knows to contact 
+a C2 center at a 
 certain 
-location, but then lose the ability to use or update those hosts when the C2 center is taken down.
+location, but then lose the ability to use or update those hosts when the C2 
+center is taken down.
 
-To ensure that hosts remain able to contact C2 centers, modern malware generally does not hard-code 
-the address of the C2 center directly into the deployed code. Instead, malware authors need to 
+To ensure that hosts remain able to contact C2 centers, modern malware 
+generally does not hard-code 
+the address of the C2 center directly into the deployed code. Instead, 
+malware authors need to 
 provide 
-a layer of indirection --- a naming layer --- so that deployed malware can have a 
+a layer of indirection --- a naming layer --- so that deployed malware can have 
+a 
 fixed, hard-coded destination to reach out to to get further instructions. 
 This naming layer should be resilient to takedown efforts.
 
-\subsection{What features of naming systems are desirable for storing C2 domain names?}
+\subsection{What features of naming systems are desirable for storing C2 
+domain names?}
 
-From a malware author's perspective, an ideal naming system for recording C2 
+From a malware author's perspective, an ideal naming system for recording 
+C2 
 addresses is uncensorable at both the request level and the system level. To be 
 uncensorable at the request level, there should be no central authority that 
 has the ability to enforce a legal takedown notice for an individual record. To 
@@ -175,8 +199,10 @@ causing significant collateral damage to benign users.
 To some extent, a trade-off exists between these features. On 
 one side of the 
 spectrum, protocols like Tor provide high resistance to request-level 
-censorship, but they stand out in network traffic, allowing systems like IDSes to detect the 
-malware's presence. For example, enterprise networks often block Tor entirely under the assumption 
+censorship, but they stand out in network traffic, allowing systems like 
+IDSes to detect the 
+malware's presence. For example, enterprise networks often block Tor 
+entirely under the assumption 
 that none of their employees will use it for any legitimate purpose.
 %but do not have enough licit traffic to prevent authorities from 
 %blocking access to the system entirely. \randall{Cite that paper that   
@@ -188,48 +214,79 @@ such as social media to store C2 addresses. Defenders do not
 want to impose blanket bans on applications accessing social 
 media URLs, but social media companies such as Facebook and 
 Twitter have the capability, motivation, and legal obligation to enforce 
-legal takedown requests on individual posts. Malware authors want to use systems that are balanced 
-between being difficult to block at the record level and difficult to detect and block at the 
+legal takedown requests on individual posts. Malware authors want to use 
+systems that are balanced 
+between being difficult to block at the record level and difficult to detect 
+and block at the 
 system level.
 
 \subsection{DNS-based domain names}
 
-Traditional DNS has high system-level resistance to censorship but low request-level resistance. 
-Since nearly every device and application on the Internet requires DNS, enterprises and firewalls 
-almost never block it entirely. However, while DNS is a decentralized system in terms of how its 
-components are replicated across the globe, it is not decentralized in terms of authority. The 
-registrar that sold a domain can be compelled to ``delete'' that domain or prevent it from being 
+Traditional DNS has high system-level resistance to censorship but low 
+request-level resistance. 
+Since nearly every device and application on the Internet requires DNS, 
+enterprises and firewalls 
+almost never block it entirely. However, while DNS is a decentralized 
+system in terms of how its 
+components are replicated across the globe, it is not decentralized in terms 
+of authority. The 
+registrar that sold a domain can be compelled to ``delete'' that domain or 
+prevent it from being 
 updated or transferred. 
 
 The usual process for enacting a legal takedown in the United States works as 
 follows~\cite{knight_domain_2015}. Upon 
-identifying a domain that is being used as a C2 center, a law enforcement entity may choose to make 
-an Acceptable Use Policy (AUP) complaint or may immediately seek a court order compelling the 
-registrar to take down the domain. Some registrars cooperate with AUC complaints without legal 
-intervention, but others do not. If the registrar does not respond to the AUC complaint and take 
-down the domain, law enforcement may move on to using a court order. The court order commonly 
-prevents the domain from being updated or transferred rather than deleting it entirely, because if 
-the domain is deleted, it can be re-registered by the malware authors. The court order also 
-specifies whether the domain should continue to resolve, resolve to a new IP address specified by 
+identifying a domain that is being used as a C2 center, a law enforcement 
+entity may choose to make 
+an Acceptable Use Policy (AUP) complaint or may immediately seek a court order 
+compelling the 
+registrar to take down the domain. Some registrars cooperate with AUC 
+complaints without legal 
+intervention, but others do not. If the registrar does not respond to the 
+AUC complaint and take 
+down the domain, law enforcement may move on to using a court order. The 
+court order commonly 
+prevents the domain from being updated or transferred rather than deleting it 
+entirely, because if 
+the domain is deleted, it can be re-registered by the malware authors. The 
+court order also 
+specifies whether the domain should continue to resolve, resolve to a new IP 
+address specified by 
 the order, or stop resolving altogether. 
 
-Court orders may be obtained by civil parties as well. The most common method is for a company to 
-apply for a temporary restraining order (TRO), which orders the perpetrators of the offending 
-activity to cease and desist and requires any intermediaries that provide services to the 
-perpetrators to cease providing those services~\cite{kesari_deterring_2017}. The latter requirement 
-is what allows companies to require registrars to ``sinkhole'' C2 domains. 
+Court orders may be obtained by civil parties as well. The most common method 
+is for a company to 
+apply for a temporary restraining order (TRO), which orders the perpetrators 
+of the offending 
+activity to cease and desist and requires any intermediaries that provide 
+services to the 
+perpetrators to cease providing those services~\cite{kesari_deterring_2017}. 
+The latter requirement 
+is what allows companies to require registrars to ``sinkhole'' C2 
+domains. 
 
-Legal domain takedown orders are a critical tool for defenders to disable botnets. For example, 
-Microsoft obtained various court orders allowing it to sinkhole the C2 servers of the botnet 
-Citadel in 2013. Microsoft successfully argued that Citadel caused the Windows operating system to 
-behave maliciously and frustrate users while still bearing Microsoft trademarks, as well as forcing 
-Microsoft to spend money on security features to combat it~\cite{lerner_microsoft_2014}. The 
-Coreflood, Kelihos, and Rustock botnets were each disabled using legal takedown orders obtained by 
-Microsoft, Pfizer (which claimed to suffer reputational harm because Rustock sent spam emails for 
-counterfeit pharmaceuticals), and the Department of Justice~\cite{kesari_deterring_2017}. These 
-takedowns are possible because in each case, some centralized entity had control of the C2 servers' 
-domain names, and thus had the capability to take them down when legally compelled to. Malware 
-authors are thus incentivized to find naming systems that are not vulnerable to legal takedowns.  
+Legal domain takedown orders are a critical tool for defenders to disable 
+botnets. For example, 
+Microsoft obtained various court orders allowing it to sinkhole the C2 servers 
+of the botnet 
+Citadel in 2013. Microsoft successfully argued that Citadel caused the Windows 
+operating system to 
+behave maliciously and frustrate users while still bearing Microsoft 
+trademarks, as well as forcing 
+Microsoft to spend money on security features to combat 
+it~\cite{lerner_microsoft_2014}. The 
+Coreflood, Kelihos, and Rustock botnets were each disabled using legal 
+takedown orders obtained by 
+Microsoft, Pfizer (which claimed to suffer reputational harm because Rustock 
+sent spam emails for 
+counterfeit pharmaceuticals), and the Department of 
+Justice~\cite{kesari_deterring_2017}. These 
+takedowns are possible because in each case, some centralized entity had 
+control of the C2 servers' 
+domain names, and thus had the capability to take them down when legally 
+compelled to. Malware 
+authors are thus incentivized to find naming systems that are not vulnerable to 
+legal takedowns.  
 
 \subsection{Blockchain-based domain names}
 
@@ -237,52 +294,75 @@ Blockchain-based naming systems present a potential threat
 because they claim to be immune to takedowns. No central authority 
 controls blockchain domains in the same way that registrars 
 control traditional DNS names. In general, it is not possible to modify or 
-delete a record on a blockchain without controlling the record's private key. Once a domain has 
-been registered, its ownership is passed to the purchaser, after which point even the company that 
-sold it cannot modify it. The record is also stored immutably on the blockchain for as long as the 
-chain exists, even if the owner later modifies or deletes it, because historical recods are part of 
-the blockchain and cannot be erased. Blockchain-based naming systems therefore have high resistance 
+delete a record on a blockchain without controlling the record's private 
+key. Once a domain has 
+been registered, its ownership is passed to the purchaser, after which 
+point even the company that 
+sold it cannot modify it. The record is also stored immutably on the 
+blockchain for as long as the 
+chain exists, even if the owner later modifies or deletes it, because 
+historical recods are part of 
+the blockchain and cannot be erased. Blockchain-based naming systems 
+therefore have high resistance 
 to request-level censorship.
 
-Furthermore, some blockchains are popular enough to be challenging to block without 
+Furthermore, some blockchains are popular enough to be challenging to block 
+without 
 harming licit users. Blockchains such as Bitcoin and Ethereum have recently 
 skyrocketed in popularity as investors became interested in cryptocurrency as 
-an asset class. Because these blockchains are no longer niche systems used only by a few 
+an asset class. Because these blockchains are no longer niche systems used 
+only by a few 
 technologically-savvy users, blocking access 
 to them entirely may be difficult without angering a large number of 
 legitimate users. As far as we are aware, cryptocurrencies and the blockchains 
 they rely on are the first examples of strongly censorship-resistant systems 
 that have gained a substantial community of legitimate users around the world.
 
-Blockchain is therefore an attractive option for malware authors to use as a naming 
-layer for C2 server addresses. In fact, some malware is already exploiting these tools.
+Blockchain is therefore an attractive option for malware authors to use as a 
+naming 
+layer for C2 server addresses. In fact, some malware is already exploiting 
+these tools.
 BazarLoader uses the Emercoin ``.bazar'' TLD to record the domains of its C2 
 servers~\cite{brandt_bazarloader_2021}. The Namecoin TLD 
 ``.bit'' is used by the
 Necurs botnet~\cite{dgas_of_necurs}, the Chthonic banking 
-trojan~\cite{malware_traffic_analysis_2016}, Smoke Loader/Dofoil, Backdoor.Teamviewer, Shifu, 
-and TinyNuke~\cite{abusech_2017, mackie_cryptodns_2018}. Cerber ransomware has 
+trojan~\cite{malware_traffic_analysis_2016}, Smoke Loader/Dofoil, 
+Backdoor.Teamviewer, Shifu, 
+and TinyNuke~\cite{abusech_2017, mackie_cryptodns_2018}. Cerber ransomware 
+has 
 even used blockchain wallet addresses as names for its C2 
 servers~\cite{pletinckx_malware_2018}.
 
-However, we find that blockchain domains are not as invincible as they claim. While sinkholing 
-blockchain domains through their registrars is not possible, blockchain domains have two different 
+However, we find that blockchain domains are not as invincible as they 
+claim. While sinkholing 
+blockchain domains through their registrars is not possible, blockchain 
+domains have two different 
 weaknesses that DNS does not have: accessing the system and modifying records.
 
- Blockchain domains are not accessible through traditional DNS. Instead, malware 
-must find a way to contact a member of the blockchain to resolve its chosen domain. Malware authors 
-can implement this in two ways: they can either use a centralized proxy with a known domain to gain 
-access to the blockchain, or they can act as first-class participants of the blockchain themselves, 
-and participate in the peer-to-peer discovery protocol. Both approaches present opportunities for 
+ Blockchain domains are not accessible through traditional DNS. Instead, 
+ malware 
+must find a way to contact a member of the blockchain to resolve its chosen 
+domain. Malware authors 
+can implement this in two ways: they can either use a centralized proxy with a 
+known domain to gain 
+access to the blockchain, or they can act as first-class participants of the 
+blockchain themselves, 
+and participate in the peer-to-peer discovery protocol. Both approaches 
+present opportunities for 
 defenders to intervene. 
 
-Modifying records on blockchains also poses new challenges for both defenders and malware authors. 
-Modifications are usually more expensive (in terms of money) than in DNS, making fast flux or DGA 
-impractical on some chains. Similarly, if a defender wishes to register all domains that a DGA 
+Modifying records on blockchains also poses new challenges for both defenders 
+and malware authors. 
+Modifications are usually more expensive (in terms of money) than in DNS, 
+making fast flux or DGA 
+impractical on some chains. Similarly, if a defender wishes to register 
+all domains that a DGA 
 might produce, this becomes expensive on some chains.
 
-In the remainder of this work, we detail the specific challenges posed by the blockchain DNS 
-ecosystem to malware authors and defenders, as well as the pieces of the ecosystem where 
+In the remainder of this work, we detail the specific challenges posed by the 
+blockchain DNS 
+ecosystem to malware authors and defenders, as well as the pieces of the 
+ecosystem where 
 effective interventions might be staged.
 
 \section{Accessing records}
@@ -296,34 +376,51 @@ effective interventions might be staged.
 	\label{fig:malware_contacting_cnc}
 \end{figure*}
 
-We have established that malware requires a naming layer to access its C2 centers, and 
-that blockchain-based naming systems are attractive options for implementing such a naming layer. 
-We will now discuss the fundamental requirements of distributed naming systems and how 
-these requirements present challenges and advantages to defenders. The first such fundamental 
+We have established that malware requires a naming layer to access its C2 
+centers, and 
+that blockchain-based naming systems are attractive options for implementing 
+such a naming layer. 
+We will now discuss the fundamental requirements of distributed naming systems 
+and how 
+these requirements present challenges and advantages to defenders. The first 
+such fundamental 
 requirement is accessing the distributed system.
 
-To access name records stored on any distributed system like a blockchain, infected hosts must 
-first obtain access to the blockchain itself. Accessing any distributed, peer-to-peer system for 
-the first time requires learning the address of at least one participating node. In general, there 
+To access name records stored on any distributed system like a blockchain, 
+infected hosts must 
+first obtain access to the blockchain itself. Accessing any distributed, 
+peer-to-peer system for 
+the first time requires learning the address of at least one participating 
+node. In general, there 
 are two methods for finding such an address: connecting to a 
 proxy that already knows how to reach a member of the system, or acting 
-as a full member of the system yourself and utilizing its peer-to-peer discovery protocol. The 
-latter approach requires knowing a list of ``bootstrap nodes.'' For example, Ethereum uses a list 
-of bootstrap nodes that are hard-coded into various client implementations. Bitcoin 
-stores lists of nodes in DNS TXT records maintained by volunteers, as well as hard-coded 
+as a full member of the system yourself and utilizing its peer-to-peer 
+discovery protocol. The 
+latter approach requires knowing a list of ``bootstrap nodes.'' For example, 
+Ethereum uses a list 
+of bootstrap nodes that are hard-coded into various client 
+implementations. Bitcoin 
+stores lists of nodes in DNS TXT records maintained by volunteers, as well 
+as hard-coded 
 lists~\cite{citation_needed}. A third option, a 
 local discovery protocol that floods the network with 
 messages looking for nodes, has not been adopted by any major 
-blockchains that we are aware of. Such an approach would only be successful if the nodes running 
-the blockchain were ubiquitous. It would also be very ``noisy'' and so unlikely to be favored by 
-malware, so we do not discuss it further. Figure~\ref{fig:malware_contacting_cnc} shows the options 
-infected hosts may choose from when connecting to a decentralized naming system, which we now 
+blockchains that we are aware of. Such an approach would only be successful if 
+the nodes running 
+the blockchain were ubiquitous. It would also be very ``noisy'' and so 
+unlikely to be favored by 
+malware, so we do not discuss it further. 
+Figure~\ref{fig:malware_contacting_cnc} shows the options 
+infected hosts may choose from when connecting to a decentralized naming 
+system, which we now 
 discuss in more detail.
 
-%Anything in Figure~\ref{fig:malware_contacting_cnc} in green is centralized 
+%Anything in Figure~\ref{fig:malware_contacting_cnc} in green is 
+%centralized 
 %enough to have to respond to a takedown request. Anything in yellow is 
 %more difficult because taking it down would have collateral damage, and in 
-%orange it's probably impossible to take down because it's truly distributed and 
+%orange it's probably impossible to take down because it's truly 
+%distributed and 
 %very resilient to takedowns.
 
 
@@ -367,24 +464,34 @@ discuss in more detail.
 	\label{tab:proxies_and_tlds}
 \end{table}
 
-To resolve a blockchain-based name by using a proxy, users have several choices. Most large 
-browsers, such as Safari, Chrome, and Firefox, do not support any blockchain 
-naming systems natively. However, several extensions allow users to resolve names from ENS, 
-Handshake, and Unstoppable Domains. These extensions rely on proxies that use 
+To resolve a blockchain-based name by using a proxy, users have several 
+choices. Most large 
+browsers, such as Safari, Chrome, and Firefox, do not support any 
+blockchain 
+naming systems natively. However, several extensions allow users to resolve 
+names from ENS, 
+Handshake, and Unstoppable Domains. These extensions rely on proxies that 
+use 
 DoH to send a resolution request to a server that can resolve the name. We 
 note that such a server does not need to make a lookup to the chain every time 
-it receives a request: it may cache names or keep track of its own database of 
+it receives a request: it may cache names or keep track of its own database 
+of 
 names, which would simplify its implementation and speed up lookups 
 significantly. 
 
-Some browsers, such as Brave and Opera, claim to resolve certain naming systems 
-natively. \randall{but when I tried this it didn't work? should try again with 
+Some browsers, such as Brave and Opera, claim to resolve certain naming 
+systems 
+natively. \randall{but when I tried this it didn't work? should try again 
+with 
 known websites and try Opera.} Both Brave and Opera rely on a proxy called 
-Infura to resolve blockchain-based names. \randall{many citations needed.} 
+Infura to resolve blockchain-based names. \randall{many citations 
+needed.} 
 
-Some naming systems have partnerships with existing DNS resolvers. For example, 
+Some naming systems have partnerships with existing DNS resolvers. For 
+example, 
 NextDNS and Handshake have partnered to allow users who set their DNS resolver 
-to NextDNS to resolve Handshake domains. Finally, some naming systems, such as 
+to NextDNS to resolve Handshake domains. Finally, some naming systems, 
+such as 
 Handshake, also provide stub resolver implementations that run locally on a 
 user's computer. 
 
@@ -397,28 +504,40 @@ between blockchain-based systems themselves (Emercoin and Unstoppable both
 provide a ``.coin'' TLD) and between ICANN TLDs and blockchain-based systems 
 (both Handshake and ICANN provide ``.music''). 
 This means the record that a user receives when resolving a name with a 
-collision depends on which resolution method they use. If the user has multiple 
-proxies set up --- for example, multiple browser extensions installed that each 
+collision depends on which resolution method they use. If the user has 
+multiple 
+proxies set up --- for example, multiple browser extensions installed that 
+each 
 try to resolve domains with a specific TLD --- then the record received will 
-depend on which of those proxies takes precedence, which is not at all clearly 
-defined. This lack of centralized governance enables several classes of attacks, such as squatting 
+depend on which of those proxies takes precedence, which is not at all 
+clearly 
+defined. This lack of centralized governance enables several classes of 
+attacks, such as squatting 
 and phishing, which are beyond the scope of this paper.
 
-Table~\ref{tab:proxies_and_tlds} provides a summary of the TLDs and proxies 
-used by the blockchain naming systems we study. The list of proxies is not exhaustive, but 
+Table~\ref{tab:proxies_and_tlds} provides a summary of the TLDs and 
+proxies 
+used by the blockchain naming systems we study. The list of proxies is not 
+exhaustive, but 
 represents 
 a subset of the best-known proxies in use at the time of writing.
 All of these proxies are 
 centralized, which is good news for defenders: similarly to traditional 
 registrars, they are vulnerable to legal takedowns. They can be served with 
-legal takedown notices and compelled to stop giving access to abused domains, as long as they 
-operate within a jurisdiction amenable to such efforts. A centralized proxy could also be taken 
-down entirely by serving a takedown order to its hosting provider. While these interventions are 
-not bulletproof, they are subject to the same advantages and disadvantages as 
-interventions on traditional registrars. Thus, centralized proxies return the 
+legal takedown notices and compelled to stop giving access to abused domains, 
+as long as they 
+operate within a jurisdiction amenable to such efforts. A centralized proxy 
+could also be taken 
+down entirely by serving a takedown order to its hosting provider. While 
+these interventions are 
+not bulletproof, they are subject to the same advantages and disadvantages 
+as 
+interventions on traditional registrars. Thus, centralized proxies return 
+the 
 distributed naming ecosystem to a state similar to the DNS ecosystem, from a 
 defender's point of view. However, while proxies simplify the process of 
-connecting to a blockchain, they are not strictly necessary, which is bad news 
+connecting to a blockchain, they are not strictly necessary, which is bad 
+news 
 for defenders.
 
 
@@ -468,57 +587,89 @@ bootstrap nodes are a more difficult place to stage an
 effective defender intervention than centralized proxies. 
 
 Prohibiting malware from accessing a blockchain by intervening with the 
-bootstrap nodes poses challenges compared to staging interventions at centralized proxies. If 
-defenders take the bootstrap nodes down entirely, they risk causing collateral damage, by blocking 
-access to the chain for licit users. However, because the IP addresses of the bootstrap nodes are 
-public, defenders could also choose to add them to blocklists: IDSes, enterprise firewalls, or ISP 
-routers can drop traffic intended for those destinations. The blocklist approach is very similar to 
-blocking any other malicious IP addresses, and is subject to the usual challenges. Defenders must 
-keep blocklists up-to-date as malware authors update the IPs they connect to, and malware authors 
-could quickly pivot from using published IP addresses to IPs of nodes that they run 
-themselves which are not publicly known. To the advantage of defenders, any time malware authors 
-are forced to update the IP addresses that bootstrap nodes may be found at, they run 
-afoul of the ``sunk cost'' problem where already-deployed malware that cannot be updated becomes 
-useless. A similar argument applies if malware chooses to access bootstrap nodes using hard-coded 
-DNS domain names instead of hard-coded IP addresses. Additionally, traditional interventions 
-against domain names apply in that situation as well. Thus, while intervening at bootstrap nodes 
-poses more of a challenge than intervening at centralized proxies, defenders still have viable 
+bootstrap nodes poses challenges compared to staging interventions at 
+centralized proxies. If 
+defenders take the bootstrap nodes down entirely, they risk causing 
+collateral damage, by blocking 
+access to the chain for licit users. However, because the IP addresses of 
+the bootstrap nodes are 
+public, defenders could also choose to add them to blocklists: IDSes, 
+enterprise firewalls, or ISP 
+routers can drop traffic intended for those destinations. The blocklist 
+approach is very similar to 
+blocking any other malicious IP addresses, and is subject to the usual 
+challenges. Defenders must 
+keep blocklists up-to-date as malware authors update the IPs they connect to, 
+and malware authors 
+could quickly pivot from using published IP addresses to IPs of nodes that they 
+run 
+themselves which are not publicly known. To the advantage of defenders, 
+any time malware authors 
+are forced to update the IP addresses that bootstrap nodes may be found at, 
+they run 
+afoul of the ``sunk cost'' problem where already-deployed malware that cannot 
+be updated becomes 
+useless. A similar argument applies if malware chooses to access bootstrap 
+nodes using hard-coded 
+DNS domain names instead of hard-coded IP addresses. Additionally, 
+traditional interventions 
+against domain names apply in that situation as well. Thus, while 
+intervening at bootstrap nodes 
+poses more of a challenge than intervening at centralized proxies, defenders 
+still have viable 
 options available.
 
 \subsection{Naming record formats}
 
-If malware successfully contacts the naming layer, it can then fetch the record that allows it to 
+If malware successfully contacts the naming layer, it can then fetch the 
+record that allows it to 
 access its C2 center. 
-This record can take several forms. The three that we observed in existing blockchain naming 
+This record can take several forms. The three that we observed in existing 
+blockchain naming 
 systems that might be useful to malware were IP addresses, 
 traditional DNS domains, and addresses to distributed file storage 
-systems like IPFS and SkyNet. We refer to these addresses as ``distributed storage'' (DS) 
-addresses. Some naming systems allow users to store arbitrary text as records, which would allow 
+systems like IPFS and SkyNet. We refer to these addresses as ``distributed 
+storage'' (DS) 
+addresses. Some naming systems allow users to store arbitrary text as 
+records, which would allow 
 malware to use nonstandard record types like links to social media posts. 
 
-Each of these record types are subject to all of the traditional interventions that have already 
-been described, except one: DS addresses. Distributed storage systems present a further challenge 
-to defenders that goes beyond the challenges of decentralized naming. They enable malware authors 
+Each of these record types are subject to all of the traditional interventions 
+that have already 
+been described, except one: DS addresses. Distributed storage systems 
+present a further challenge 
+to defenders that goes beyond the challenges of decentralized naming. They 
+enable malware authors 
 to run an entire C2 center on a blockchain-based system that has no central 
-authority capable of responding to a takedown request. In this respect, they provide a limited form 
+authority capable of responding to a takedown request. In this respect, 
+they provide a limited form 
 of ``bulletproof'' hosting, and present their own unique challenges for 
 both malware authors and defenders.
 
-The decentralized storage systems available today do not offer the ability to host dynamic 
-websites, so any C2 center implemented entirely on such a system must be a simple file with no 
-dynamic content. Additionally, today's DS systems are content-addressed, which presents a challenge 
-for malware authors that wish to hard-code the DS address of their C2 center into their payloads. 
-If the file that represents the C2 server changes, its address will change as well, because the 
+The decentralized storage systems available today do not offer the ability to 
+host dynamic 
+websites, so any C2 center implemented entirely on such a system must be a 
+simple file with no 
+dynamic content. Additionally, today's DS systems are 
+content-addressed, which presents a challenge 
+for malware authors that wish to hard-code the DS address of their C2 center 
+into their payloads. 
+If the file that represents the C2 server changes, its address will change as 
+well, because the 
 address is created from a hash of the file.
 
-Some DS systems do not have redundancy, which raises the possibility of discovering the particular 
+Some DS systems do not have redundancy, which raises the possibility of 
+discovering the particular 
 machine(s) responsible for hosting a C2 server and seizing it. 
 
 
-\randall{where do I put this? Additionally, because all blockchain records 
+\randall{where do I put this? Additionally, because all blockchain 
+records 
 are public, anyone can fetch those records including 
-defenders. You could theoretically scrape a blockchain looking for records that match a known 
-malicious format or with malicious traits of some sort (owned by the same wallet?) and try to seize 
+defenders. You could theoretically scrape a blockchain looking for records 
+that match a known 
+malicious format or with malicious traits of some sort (owned by the same 
+wallet?) and try to seize 
 whatever those records point to.} 
 
 Accessing a DS system is the same as accessing a distributed 
@@ -543,8 +694,10 @@ in that direction as chains get heavier.
 
 \section{Modifying records}
 
-Malware authors must not only ensure their clients can access the blockchain naming system, but 
-also ensure they can modify the addresses stored in the records when they become unavailable.
+Malware authors must not only ensure their clients can access the blockchain 
+naming system, but 
+also ensure they can modify the addresses stored in the records when they 
+become unavailable.
 
 \subsection{Name-specific chains vs. general-purpose chains}
 
@@ -552,43 +705,69 @@ Name-specific chains, such as Namecoin, Emercoin, and
 Handshake, tend to have fewer participants, less popularity, 
 and lower transaction fees. General-purpose chains, such as 
 Bitcoin and Ethereum, have naming systems built on top of the 
-underlying chain. Examples of these naming systems include ENS, Unstoppable Domains, and 
-Blockstack. These chains have higher transaction or gas fees, which users must pay whenever they 
-modify a domain's record, and the names tend to be much more expensive to purchase. 
+underlying chain. Examples of these naming systems include ENS, Unstoppable 
+Domains, and 
+Blockstack. These chains have higher transaction or gas fees, which users 
+must pay whenever they 
+modify a domain's record, and the names tend to be much more expensive to 
+purchase. 
 
 \subsection{Challenges on general-purpose chains}
 \randall{Say somewhere that reads don't cost anything, only writes}
 
 
-Botnets often cycle through domain names and IP addresses for their C2 servers quickly, to replace 
-blocklisted domains and IPs or prevent defenders from seizing them~\cite{nadji_beheading_2013}. 
-Malware authors commonly use two strategies to cycle through records: fast flux and DGAs. Fast flux 
-is the practice of storing multiple records with low TTLs at a domain, and changing the records as 
-soon as the TTL expires. This allows a domain to resolve to a different group of IP addresses every 
-few minutes~\cite{holz_measuring_2008}. The IP addresses in question belong to a pool of 
-compromised machines that can then route requests to the true C2 server. Fast flux increases the 
-number of machines defenders must seize or neutralize, because if any of the compromised machines 
-are still routing traffic, the system still works. However, fast flux is still vulnerable to domain 
-takedowns. DGAs (Domain Generation Algorithms) address this weakness by cycling through domains as 
-well as IP addresses. By randomly generating a large number of domains and only using a few of them 
+Botnets often cycle through domain names and IP addresses for their C2 servers 
+quickly, to replace 
+blocklisted domains and IPs or prevent defenders from seizing 
+them~\cite{nadji_beheading_2013}. 
+Malware authors commonly use two strategies to cycle through records: fast 
+flux and DGAs. Fast flux 
+is the practice of storing multiple records with low TTLs at a domain, and 
+changing the records as 
+soon as the TTL expires. This allows a domain to resolve to a different group 
+of IP addresses every 
+few minutes~\cite{holz_measuring_2008}. The IP addresses in question belong 
+to a pool of 
+compromised machines that can then route requests to the true C2 server. Fast 
+flux increases the 
+number of machines defenders must seize or neutralize, because if any of the 
+compromised machines 
+are still routing traffic, the system still works. However, fast flux is 
+still vulnerable to domain 
+takedowns. DGAs (Domain Generation Algorithms) address this weakness by cycling 
+through domains as 
+well as IP addresses. By randomly generating a large number of domains and 
+only using a few of them 
 to host C2 servers, malware authors can evade blocklists and  
 takedowns~\cite{antonakakis_throw-away_2012}.
 
-Generally speaking, DNS domains are cheaper, easier to modify, and easier to replace than IP 
-addresses, because each IP address represents a compromised machine while new domains can be 
-purchased inexpensively. Blockchain-based domains on chains with high transaction costs, such as 
-Bitcoin and Ethereum, change this norm. Malware authors must pay transaction fees, which can 
-sometimes be quite high, to register or modify their domains. We found that registering a new name 
-on the Unstoppable Domains service cost nearly \$80 in gas fees alone during a period of high fees. 
-The cost of the name alone was \$10. While licit users may wait for fees to be low at times of low 
-network congestion, malware authors may not have that choice, since they need to modify records as 
-soon as possible after their previous records become blocklisted. Otherwise, their botnets might 
-experience downtime. The high transaction cost poses challenges for defenders as well: it is 
-impractical to pre-register every domain that a DGA can generate to prevent malware authors from 
+Generally speaking, DNS domains are cheaper, easier to modify, and 
+easier to replace than IP 
+addresses, because each IP address represents a compromised machine while 
+new domains can be 
+purchased inexpensively. Blockchain-based domains on chains with high 
+transaction costs, such as 
+Bitcoin and Ethereum, change this norm. Malware authors must pay 
+transaction fees, which can 
+sometimes be quite high, to register or modify their domains. We found that 
+registering a new name 
+on the Unstoppable Domains service cost nearly \$80 in gas fees alone during a 
+period of high fees. 
+The cost of the name alone was \$10. While licit users may wait for fees to be 
+low at times of low 
+network congestion, malware authors may not have that choice, since they 
+need to modify records as 
+soon as possible after their previous records become blocklisted. Otherwise, 
+their botnets might 
+experience downtime. The high transaction cost poses challenges for 
+defenders as well: it is 
+impractical to pre-register every domain that a DGA can generate to prevent 
+malware authors from 
 registering them themselves. 
 
 \randall{Does it take longer to propagate modifications through a blockchain 
-than through DNS? Is this a challenge for malware bc it introduces downtime? 
+than through DNS? Is this a challenge for malware bc it introduces 
+downtime? 
 Someone said it could take half an hour for a txn to be confirmed on a 
 blockchain.}
 
@@ -603,7 +782,8 @@ We now describe specific Ethereum-based naming systems in more detail.
 	\label{fig:ens_records}
 \end{figure}
 
-Describe the registrar/registry/resolver structure. We took a sample of X domains from the most 
+Describe the registrar/registry/resolver structure. We took a sample 
+of X domains from the most 
 frequently updated resolver contracts.
 
 Haven't found anything bad yet except loli-hentai.eth. This 
@@ -632,45 +812,65 @@ to be using the small chains (Namecoin and Emercoin) a lot.
 \subsubsection{Low malware adoption of Ethereum-based naming services}
 
 So far, we have not found evidence that malware authors are 
-transitioning to Ethereum-based naming services. We suspect that the high cost in 
-comparison to systems like Namecoin and Emercoin is a factor in the apparent low adoption rate. 
-Another factor is that systems like ENS and Unstoppable Domains are not advertised as drop-in 
-replacements for DNS. Rather than being intended specifically to resolve to IP addresses, these 
-naming systems often translate a human-readable name to a \emph{wallet address} instead. While 
-users can still store IP addresses, very few choose to do so. \randall{need numbers here or later 
-in specific chain section}. Some users store the addresses for distributed storage systems, but the 
-majority of configured records store wallet addresses. We also note that a high percentage of names 
-on ENS and Unstoppable Domains are not configured to have records at all. There may be a few 
-reasons why: first, while purchasing a domain is very straightforward, adding a record requires 
-interacting with smart contracts on the blockchain, because only the owner of the domain may modify 
-its records. The company that sold the domain no longer has the ability to add records for the user 
-unless the user chooses to park their domain in the company's wallet-hosting service. This 
-requirement is not obvious at the purchasing step. Second, a large number of names appear to be 
-purchased as speculative assets rather than because users wish to utilize them directly. 
+transitioning to Ethereum-based naming services. We suspect that the high 
+cost in 
+comparison to systems like Namecoin and Emercoin is a factor in the apparent 
+low adoption rate. 
+Another factor is that systems like ENS and Unstoppable Domains are not 
+advertised as drop-in 
+replacements for DNS. Rather than being intended specifically to resolve to IP 
+addresses, these 
+naming systems often translate a human-readable name to a \emph{wallet 
+address} instead. While 
+users can still store IP addresses, very few choose to do so. 
+\randall{need numbers here or later 
+in specific chain section}. Some users store the addresses for distributed 
+storage systems, but the 
+majority of configured records store wallet addresses. We also note that a 
+high percentage of names 
+on ENS and Unstoppable Domains are not configured to have records at all. 
+There may be a few 
+reasons why: first, while purchasing a domain is very straightforward, 
+adding a record requires 
+interacting with smart contracts on the blockchain, because only the owner 
+of the domain may modify 
+its records. The company that sold the domain no longer has the ability to 
+add records for the user 
+unless the user chooses to park their domain in the company's wallet-hosting 
+service. This 
+requirement is not obvious at the purchasing step. Second, a large number of 
+names appear to be 
+purchased as speculative assets rather than because users wish to utilize them 
+directly. 
 
 \section{Challenges on small chains}
-\begin{itemize}
-	\item High txn cost is less of an issue: defenders might 
-	be able to register DGA domains? 
-	\item Blocking the whole thing using antivirus and 
-	middleboxes, or taking the whole thing down, is probably 
-	possible, because there's so few legit users. Even that 
-	one proxy stopped serving access to .bit domains. A 51\% 
-	attack is possible on Namecoin because one pool already 
-	had ~60\% of the hashing power. Also possible just to 
-	blocklist every IP recorded in the chain's domain records.
-\end{itemize}
+%\begin{itemize}
+%	\item High txn cost is less of an issue: defenders might 
+%	be able to register DGA domains? 
+%	\item Blocking the whole thing using antivirus and 
+%	middleboxes, or taking the whole thing down, is probably 
+%	possible, because there's so few legit users. Even that 
+%	one proxy stopped serving access to .bit domains. A 51\% 
+%	attack is possible on Namecoin because one pool already 
+%	had ~60\% of the hashing power. Also possible just to 
+%	blocklist every IP recorded in the chain's domain records.
+%\end{itemize}
 
-Naming-specific blockchains, such as Namecoin, Emercoin, and Handshake, present 
+Naming-specific blockchains, such as Namecoin, Emercoin, and Handshake, 
+present 
 a different set of tradeoffs for defenders and malware authors. With fewer 
-users and correspondingly less demand, these systems' names are usually much 
+users and correspondingly less demand, these systems' names are usually 
+much 
 less expensive than names in Ethereum-based systems. This enables malware 
-authors to use fast flux or DGA-based strategies, and also may enable defenders 
-to pre-register domains generated by DGAs. Additionally, low demand for these 
+authors to use fast flux or DGA-based strategies, and also may enable 
+defenders 
+to pre-register domains generated by DGAs. Additionally, low demand for 
+these 
 services from licit users enables interventions that would cause significant 
 collateral damage on more popular blockchains. These interventions include 
 blocklisting every record within the chain, blocking access to the chain 
-entirely (e.g., from enterprise networks or ISPs' networks), or disabling its 
+entirely (e.g., from enterprise networks or ISPs' networks), or disabling 
+its 
 bootstrap nodes to prevent new peers from joining the blockchain.
 
 \subsection{Namecoin and Emercoin}
@@ -684,6 +884,33 @@ Cite/summarize those two papers that found all sorts of
 nastiness on these chains.
 
 \subsubsection{Handshake}
+\begin{table}
+	\begin{tabular}{lr}
+		\toprule
+		Record & Names with Record \\
+		\midrule
+		Default NS and GLUE4 records & 102,386 \\
+		\hspace*{0.2in} No A records & 102,285\\
+		\hspace*{0.2in} A 44.235.163.135 & 94 \\
+		\hspace*{0.2in} A 52.43.158.89 & 4 \\
+		\hspace*{0.2in} A 144.91.114.245 & 2 \\
+		\hspace*{0.2in} A 1.1.1.1 & 1 \\
+		Invalid name & 98,068 \\
+		No record (null) & 845 \\
+		TXT record & 138 \\
+		\hspace*{0.2in} ``hello fx-wallet'' & 110 \\
+		\hspace*{0.2in} Other & 28 \\
+		Non-default NS record & 32 \\
+		Non-default GLUE4 record & 11 \\
+		Distributed storage address & 7 \\
+		\midrule
+		Total unique names & 201,458 \\
+		Total records & 201,487 \\
+		\bottomrule
+	\end{tabular}
+	\caption{Record types in the Handshake namespace.}
+	\label{tab:handshake_records}
+\end{table}
 
 Handshake is a new blockchain-based system that aims to 
 replace the root DNS 
@@ -695,50 +922,66 @@ to act as registrars who can sell their own domains.
 Handshake's stated goal is not to replace the traditional DNS 
 system: Handshake records are designed to store the domains 
 and IP addresses of traditional authoritative nameservers, 
-rather than to store A, AAAA, or CNAME records. However, 
-Handshake also allows users to store TXT records, which can 
+rather than to store A, AAAA, or CNAME records. However, we note that nothing 
+restricts malware authors from recording the IP addresses of C2 servers as NS 
+records, or running an authoritative nameserver and a C2 server on the same 
+machine. Handshake also allows users to store TXT records, which can 
 contain the addresses for decentralized web hosting systems 
-like Skynet or IPFS. Malware users could therefore use 
+like Skynet or IPFS. Malware users could potentially use 
 Handshake as a naming system to find content stored in 
-content-addressed distributed storage systems.
-
-``Handshake is the only naming blockchain with a lightweight 
+content-addressed distributed storage systems. Additionally, Handshake 
+advertises themselves as ``the only naming blockchain with a lightweight 
 recursive DNS resolver, which you can easily embed into 
-browsers, apps, and devices.'' - 
-https://learn.namebase.io/starting-from-zero/how-to-access-handshake-sites
-So it can use the bootstrap nodes and participate in 
-Handshake as a first class citizen, which is challenging for 
-defenders.
+browsers, apps, and devices''~\cite{namebase_access_handshake}. 
+This lightweight resolver may be attractive to malware authors because it is 
+small enough to use as part of a malware payload.
 
-Handshake stats:
-\begin{itemize}
-	\item The vast majority of names just have two GLUE4 
-	records with two nameservers: “ns1.name” and “ns2.name”. 
-	The IPs in these glue4 records are 44.231.6.183 and 
-	54.214.136.246, respectively.
-	\item Many of the most expensive TLDs (.x, .crypto, .js, 
-	.8, .wallet) return an SOA record pointing to 
-	``a.misconfigured.powerdns.server''
-	\item ~100K had a nameserver record (all of them pointed 
-	to what I assume is the Namebase resolver, except one or 
-	two.) Out of those 100,000, only 101 actually had an A 
-	record. 94/100 point to one IP address: 44.235.163.135. 
-	That's an AWS IP that gives a 404 if you visit it with a 
-	browser. Four more point to 52.43.158.89 (another AWS 
-	IP), which redirects to an unconfigured distributed 
-	hosting provider site. One points to 1.1.1.1, and two 
-	look like someone's unconfigured personal website.
-\end{itemize}
+We collected a sample of approximately 201,000 Handshake names and analyzed the 
+records assocated with them. Table~\ref{tab:handshake_records} 
+summarizes our findings. At the moment, Handshake names appear to be 
+overwhelmingly used as speculative assets. Only 0.14\% of names in our sample 
+had records that led to either IP addresses or DS addresses, assuming the 
+non-default nameserver and glue records do lead to IP addresses or DS 
+addresses. Nearly half of registered Handshake domains cannot be resolved by 
+the HNS client, since they contain illegal characters like emojis or are solely 
+composed of numbers: these names are nevertheless allowed to be minted.
+
+%Handshake stats:
+%\begin{itemize}
+%	\item The vast majority of names just have two GLUE4 
+%	records with two nameservers: “ns1.name” and “ns2.name”. 
+%	The IPs in these glue4 records are 44.231.6.183 and 
+%	54.214.136.246, respectively.
+%	\item Many of the most expensive TLDs (.x, .crypto, .js, 
+%	.8, .wallet) return an SOA record pointing to 
+%	``a.misconfigured.powerdns.server''
+%	\item ~100K had a nameserver record (all of them pointed 
+%	to what I assume is the Namebase resolver, except one or 
+%	two.) Out of those 100,000, only 101 actually had an A 
+%	record. 94/100 point to one IP address: 44.235.163.135. 
+%	That's an AWS IP that gives a 404 if you visit it with a 
+%	browser. Four more point to 52.43.158.89 (another AWS 
+%	IP), which redirects to an unconfigured distributed 
+%	hosting provider site. One points to 1.1.1.1, and two 
+%	look like someone's unconfigured personal website.
+%\end{itemize}
 
 \section{Seizing wallets}
 
-The CEO of Unstoppable Domains, Matthew Gould, stated in an email that Unstoppable ``prevented the 
-registration of domains associated with known pirating software or other types of IP theft and 
-fraud.'' Unstoppable can also seize a domain if that domain is hosted by Unstoppable's custody 
-wallet, instead of in their own wallet. In fact, other wallet hosting services, such as Coinbase's, 
-could presumably also seize wallets that store domains, since the private keys of those wallets are 
-known to the service. However, we note that seizing hosted wallets may not be a reliable 
-intervention, because malware authors can evade this tactic by simply using self-hosted wallets. 
+The CEO of Unstoppable Domains, Matthew Gould, stated in an email that 
+Unstoppable ``prevented the 
+registration of domains associated with known pirating software or other types 
+of IP theft and 
+fraud.'' Unstoppable can also seize a domain if that domain is hosted by 
+Unstoppable's custody 
+wallet, instead of in their own wallet. In fact, other wallet hosting 
+services, such as Coinbase's, 
+could presumably also seize wallets that store domains, since the private 
+keys of those wallets are 
+known to the service. However, we note that seizing hosted wallets may not 
+be a reliable 
+intervention, because malware authors can evade this tactic by simply using 
+self-hosted wallets. 
 
 \section{What might cause a naming system to present a threat?}
 
@@ -752,12 +995,17 @@ defenders wouldn't want to block access to it?
 
 \section{Conclusion}
 
-While decentralized naming and hosting systems pose challenges, they cannot entirely 
-eliminate their reliance on systems with centralized authority. Whenever malware uses a centralized 
-resource to enable its use of decentralized ones, defenders can intervene. Defenders cannot serve 
+While decentralized naming and hosting systems pose challenges, they cannot 
+entirely 
+eliminate their reliance on systems with centralized authority. Whenever 
+malware uses a centralized 
+resource to enable its use of decentralized ones, defenders can intervene. 
+Defenders cannot serve 
 legal takedown orders to a centralized entity to take 
-down a blockchain domain, but they can prevent malware from accessing the blockchain in the first 
-place, or target the DNS domain or IP address that the blockchain domain resolves to.
+down a blockchain domain, but they can prevent malware from accessing the 
+blockchain in the first 
+place, or target the DNS domain or IP address that the blockchain domain 
+resolves to.
 
 %\section{How big of a threat is blockchain DNS?}
 %The original goal of this paper was to say whether malware 
