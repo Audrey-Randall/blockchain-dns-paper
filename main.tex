@@ -771,9 +771,47 @@ downtime?
 Someone said it could take half an hour for a txn to be confirmed on a 
 blockchain.}
 
+Interestingly, systems like ENS and Unstoppable Domains are not advertised as 
+drop-in replacements for DNS. Rather than being intended specifically to 
+resolve to IP addresses, these naming systems often translate a human-readable 
+name to a \emph{wallet address} instead. While users can still store IP 
+addresses, very few choose to do so. \randall{need numbers here or later in 
+specific chain section}. Some users store the addresses for distributed storage 
+systems, but the majority of configured records store wallet addresses. We also 
+note that a high percentage of names on ENS and Unstoppable Domains are not 
+configured to have records at all. There may be a few reasons why: first, while 
+purchasing a domain is very straightforward, adding a record requires 
+interacting with smart contracts on the blockchain, because only the owner of 
+the domain may modify its records. The company that sold the domain no longer 
+has the ability to add records for the user unless the user chooses to park 
+their domain in the company's wallet-hosting service. This requirement is not 
+obvious at the purchasing step. Second, a large number of names appear to be 
+purchased as speculative assets rather than because users wish to utilize them 
+directly. 
+
 We now describe specific Ethereum-based naming systems in more detail.
 
 \subsubsection{ENS}
+
+\begin{table}
+	\begin{tabular}{lrr}
+		\toprule
+		Resolver Name & Txns that Set this Resolver & Address \\
+		\midrule 
+		Public Resolver 2 & 33,304 & \texttt{0x4976fb...} \\
+		Public Resolver 1 & 2,736 & \texttt{0xDaaF96...} \\
+		OpenSea ENS resolver & 482 & \texttt{0x9C4e9C...} \\
+		ENS Old Public Resolver 2 & 440	& \texttt{0x226159...} \\
+		Umbra: Stealth Resolver & 409 & \texttt{0xB37671...} \\
+		\textit{unnamed PublicResolver} & 126 & \texttt{0xD3ddcC...} \\
+		\textit{unnamed PublicResolver} & 103 & \texttt{0x5FfC01...} \\
+		ENS Old Public Resolver 1 & 29 & \texttt{0x1da022...} \\
+		\bottomrule
+	\end{tabular}
+\label{tab:ens_resolvers}
+\caption{The ENS resolvers from which we collected a sample of names and 
+records.}
+\end{table}
 
 \begin{figure}[t]
 	\centering
@@ -782,14 +820,72 @@ We now describe specific Ethereum-based naming systems in more detail.
 	\label{fig:ens_records}
 \end{figure}
 
-Describe the registrar/registry/resolver structure. We took a sample 
-of X domains from the most 
-frequently updated resolver contracts.
+ENS names use smart contracts to fill the roles of the single registrar and 
+multiple resolvers in the system. When claiming a name for the first 
+time, the user sends a transaction from their wallet to the ENS Registrar 
+Controller 
+contract, requesting that the name be registered and transferred to the 
+ownership of the wallet. The ENS Registrar Controller sets a number of default 
+values, including a default wallet 
+address record that maps the name to the wallet address that owns it, and a 
+default resolver contract for the 
+name, which at the moment is the ``ENS Public Resolver 2'' smart 
+contract.\footnote{The public 
+resolver contract was updated in the past, and almost all ENS names have now 
+changed their resolvers 
+from the ``Old'' resolvers to the current resolvers.} To fully 
+resolve a 
+name, a user must first query the ENS Registrar Controller to determine the 
+name's designated resolver, and then query that resolver for the record 
+associated with the name. Resolver contracts are allowed to access the storage 
+of the ENS Registrar Controller, which means they don't have to perform another 
+transaction for the resolver to know that a new record has been created by the 
+ENS Registrar Controller. 
 
-Haven't found anything bad yet except loli-hentai.eth. This 
-system, like all other uncensorable systems, will probably 
-eventually attract CSAM. Describe what we did to find 
-domains, how I crawled a subset.
+Users cannot query a resolver for a name's records directly: they must first 
+convert the name to its keccak256 hash. These 
+name hashes are referred to as ``nodes.'' Because keccak256 hashes are not 
+reversible, 
+translating a node back to a name requires another contract, the ENS Reverse 
+Registrar. Names are not required to have entries in the ENS Reverse Registrar, 
+so this contract is not always able to translate a given node back to a name. 
+
+To study this ecosystem, we took a sample of names from the eight resolver 
+contracts that were set by the most names as their default resolver. We chose 
+eight because the distribution of resolvers is long-tailed: the majority of 
+resolvers resolve only a few names, while the eight most popular resolvers 
+resolve the majority of names. We excluded addresses that were set as resolvers 
+by many names but did not implement the ENS resolver specification, under the 
+assumption that these were mistakes. Such misconfigured resolver addresses 
+include the null address, 
+0x0, as well as other smart contracts used by the ENS ecosystem, such as the 
+``Base Registrar Implementation.''  The remainder of the resolvers we chose are 
+detailed in Table~\ref{tab:ens_resolvers}.
+
+At the time that we performed this study, 667,369 ENS names had been 
+registered. Names that did not specify a resolver when they were registered 
+were assigned the default ENS Public Resolver 2, which presumably accounts for 
+the vast majority of the names that never performed an explicit transaction 
+setting their resolver. \randall{I'm in the middle of checking this.} 
+
+Figure~\ref{fig:ens_records} shows the distribution of the types of records 
+stored by our sample of names. The majority resolve to wallet addresses or text 
+records, not IP addresses, traditional domains, or DS addresses. We broke down 
+the text records, which are key/value pairs, by the most common key names: 
+these keys are marked with an asterisk. Only the most common 25 keys are shown. 
+We note that only 17 names had \texttt{dns\_wire\_format} records, which are 
+intended to store traditional DNS 
+records, and all 17 are malformed as far as we can tell. \randall{should maybe 
+work on that some more? Couldn't tell what was wrong by examining the octets.}
+
+%Describe the registrar/registry/resolver structure. We took a sample 
+%of X domains from the most 
+%frequently updated resolver contracts.
+%
+%Haven't found anything bad yet except loli-hentai.eth. This 
+%system, like all other uncensorable systems, will probably 
+%eventually attract CSAM. Describe what we did to find 
+%domains, how I crawled a subset.
 
 \subsubsection{Unstoppable Domains}
 
@@ -803,47 +899,41 @@ domains, how I crawled a subset.
 Describe the registry contract and the crawled domains (I did 
 crawl these didn't I?)
 
-We don't think malware is using large chains yet because of 
-the high cost of txns. If the cost goes down, or defenders 
-block/take down the cheaper alternatives, malware might be 
-forced to use the large chains. However, malware still seems 
-to be using the small chains (Namecoin and Emercoin) a lot.
+We also performed a web crawl of the Unstoppable names that had records 
+pointing to websites, either DS records or records that redirected to 
+traditional IPs or domains. We took screenshots of the 367 websites we arrived 
+at, inspected them manually, and did not find any evidence of malware use. Most 
+websites were personal sites, Web3-based business sites, or related to the sale 
+or collection of NFTs. 
+
+Unstoppable Domains has claimed that their naming system is not well suited for 
+malware authors or other miscreants for two reasons. First, Unstoppable 
+polices which domains may be sold. The CEO of Unstoppable Domains, Matthew 
+Gould, stated in an email that Unstoppable ``prevented the 
+registration of domains associated with known pirating software or other types 
+of IP theft and fraud''~\cite{pegoraro_blockchain_2021}. Second, Unstoppable 
+can also seize a domain if that 
+domain is hosted by Unstoppable's custody 
+wallet, instead of in their own wallet~\cite{pegoraro_blockchain_2021}. In 
+fact, other wallet hosting 
+services, such as Coinbase's, 
+could presumably also seize wallets that store domains, since the private 
+keys of those wallets are 
+known to the service. However, we note that seizing hosted wallets may not 
+be a reliable 
+intervention, because malware authors can evade this tactic by simply using 
+self-hosted wallets. 
 
 \subsubsection{Low malware adoption of Ethereum-based naming services}
 
 So far, we have not found evidence that malware authors are 
 transitioning to Ethereum-based naming services. We suspect that the high 
-cost in 
-comparison to systems like Namecoin and Emercoin is a factor in the apparent 
-low adoption rate. 
-Another factor is that systems like ENS and Unstoppable Domains are not 
-advertised as drop-in 
-replacements for DNS. Rather than being intended specifically to resolve to IP 
-addresses, these 
-naming systems often translate a human-readable name to a \emph{wallet 
-address} instead. While 
-users can still store IP addresses, very few choose to do so. 
-\randall{need numbers here or later 
-in specific chain section}. Some users store the addresses for distributed 
-storage systems, but the 
-majority of configured records store wallet addresses. We also note that a 
-high percentage of names 
-on ENS and Unstoppable Domains are not configured to have records at all. 
-There may be a few 
-reasons why: first, while purchasing a domain is very straightforward, 
-adding a record requires 
-interacting with smart contracts on the blockchain, because only the owner 
-of the domain may modify 
-its records. The company that sold the domain no longer has the ability to 
-add records for the user 
-unless the user chooses to park their domain in the company's wallet-hosting 
-service. This 
-requirement is not obvious at the purchasing step. Second, a large number of 
-names appear to be 
-purchased as speculative assets rather than because users wish to utilize them 
-directly. 
+cost of creating and modifying names in comparison to naming-specific systems, 
+like Namecoin and Emercoin, is a 
+factor in the apparent low adoption rate. 
 
-\section{Challenges on small chains}
+
+\section{Challenges on naming-specific chains}
 %\begin{itemize}
 %	\item High txn cost is less of an issue: defenders might 
 %	be able to register DGA domains? 
@@ -858,10 +948,11 @@ directly.
 
 Naming-specific blockchains, such as Namecoin, Emercoin, and Handshake, 
 present 
-a different set of tradeoffs for defenders and malware authors. With fewer 
-users and correspondingly less demand, these systems' names are usually 
-much 
-less expensive than names in Ethereum-based systems. This enables malware 
+a different set of tradeoffs for defenders and malware authors. These 
+blockchains are created with the sole intention of hosting a naming system. 
+With fewer users and correspondingly less demand, these systems' names are 
+usually much less expensive than names in Ethereum-based systems. This enables 
+malware 
 authors to use fast flux or DGA-based strategies, and also may enable 
 defenders 
 to pre-register domains generated by DGAs. Additionally, low demand for 
@@ -966,24 +1057,24 @@ composed of numbers: these names are nevertheless allowed to be minted.
 %	look like someone's unconfigured personal website.
 %\end{itemize}
 
-\section{Seizing wallets}
 
-The CEO of Unstoppable Domains, Matthew Gould, stated in an email that 
-Unstoppable ``prevented the 
-registration of domains associated with known pirating software or other types 
-of IP theft and 
-fraud.'' Unstoppable can also seize a domain if that domain is hosted by 
-Unstoppable's custody 
-wallet, instead of in their own wallet. In fact, other wallet hosting 
-services, such as Coinbase's, 
-could presumably also seize wallets that store domains, since the private 
-keys of those wallets are 
-known to the service. However, we note that seizing hosted wallets may not 
-be a reliable 
-intervention, because malware authors can evade this tactic by simply using 
-self-hosted wallets. 
+
 
 \section{What might cause a naming system to present a threat?}
+
+Out of the five naming systems we examine, we find none so far that present an 
+entirely intractable problem for defenders. For a naming system to present a  
+threat, it must be both easily usable by malware authors and 
+popular enough that blocking its bootstrap nodes, or blocking 
+access to it entirely, will cause significant collateral damage to licit users.
+
+We speculate that malware authors are not yet using general-purpose 
+blockchains 
+because of the high cost of registering and updating names. If these costs 
+decrease in the future, or if defenders deny malware authors access to less 
+expensive alternatives, malware authors might be 
+forced to use general-purpose chains. We now outline the factors that we 
+predict to be necessary for a naming system to present a threat. 
 
 What would cause a decentralized naming system to be popular enough that 
 defenders wouldn't want to block access to it?
