@@ -848,7 +848,12 @@ name hashes are referred to as ``nodes.'' Because keccak256 hashes are not
 reversible, 
 translating a node back to a name requires another contract, the ENS Reverse 
 Registrar. Names are not required to have entries in the ENS Reverse Registrar, 
-so this contract is not always able to translate a given node back to a name. 
+so this contract is not always able to translate a given node 
+back to a name. 
+
+One more notable feature of ENS names is that anyone may renew 
+them, not just their owners. The reason for this design choice 
+is unclear.
 
 To study this ecosystem, we took a sample of names from the eight resolver 
 contracts that were set by the most names as their default resolver. We chose 
@@ -882,7 +887,7 @@ work on that some more? Couldn't tell what was wrong by examining the octets.}
 %of X domains from the most 
 %frequently updated resolver contracts.
 %
-%Haven't found anything bad yet except loli-hentai.eth. This 
+%Haven't found anything bad yet except loli-hentai.x. This 
 %system, like all other uncensorable systems, will probably 
 %eventually attract CSAM. Describe what we did to find 
 %domains, how I crawled a subset.
@@ -896,13 +901,46 @@ work on that some more? Couldn't tell what was wrong by examining the octets.}
 	\label{fig:unstoppable_records}
 \end{figure}
 
-Describe the registry contract and the crawled domains (I did 
-crawl these didn't I?)
+%Describe the registry contract and the crawled domains (I did 
+%crawl these didn't I?)
 
-We also performed a web crawl of the Unstoppable names that had records 
-pointing to websites, either DS records or records that redirected to 
-traditional IPs or domains. We took screenshots of the 367 websites we arrived 
-at, inspected them manually, and did not find any evidence of malware use. Most 
+Like ENS, Unstoppable Domains uses Ethereum smart contracts as 
+registrars. Unstoppable names are divided into two systems. CNS 
+(Crypto Name System) contains all names with \texttt{.crypto} 
+TLDs, and has separate registry and resolver contracts. This 
+system was created first. Later, Unstoppable added UNS 
+(Unstoppable Name System), which simplified name resolution by 
+combining the resolver and registry contracts, and added several 
+new TLDs. Unstoppable names never have to be renewed; they are 
+purchased once and then owned for life. This is primarily 
+because Unstoppable Domains does not have the capability to 
+reclaim a name unless the private key of the owning wallet is 
+known to them. 
+
+Unstoppable names are referenced by their namehashes, which are 
+similar to ENS's ``nodes.'' We extracted all namehashes from the 
+Unstoppable Domains registry contract by searching all of its 
+transactions, and then found each name's records by querying the 
+Unstoppable metadata endpoint at 
+\texttt{https://metadata.unstoppabledomains.com/metadata/}. 
+Figure~\ref{fig:unstoppable_records} shows the 
+distribution 
+of record types found in the Unstoppable Domains names. As in 
+ENS, the majority of names have wallet records rather than 
+records that point to websites in any way. The next most common 
+type of record is ``whois.for\_sale.value,'' showing that many 
+names are seen as speculative assets. Unstoppable Domains also 
+provides an easy way for users to link to IPFS records. IPFS, 
+the ``Inter-Planetary File System,'' is a distributed 
+blockchain-based hosting service that allows users to host 
+static websites.
+
+We performed a web crawl of all of the Unstoppable names that 
+had records pointing to websites, whether IPFS records, 
+traditional IP addresses, or traditional domains. We took 
+screenshots of the 367 websites we arrived 
+at, inspected them manually, and did not find any evidence of 
+malware use. Most 
 websites were personal sites, Web3-based business sites, or related to the sale 
 or collection of NFTs. 
 
@@ -914,7 +952,7 @@ registration of domains associated with known pirating software or other types
 of IP theft and fraud''~\cite{pegoraro_blockchain_2021}. Second, Unstoppable 
 can also seize a domain if that 
 domain is hosted by Unstoppable's custody 
-wallet, instead of in their own wallet~\cite{pegoraro_blockchain_2021}. In 
+wallet, instead of by a private wallet~\cite{pegoraro_blockchain_2021}. In 
 fact, other wallet hosting 
 services, such as Coinbase's, 
 could presumably also seize wallets that store domains, since the private 
@@ -965,14 +1003,77 @@ its
 bootstrap nodes to prevent new peers from joining the blockchain.
 
 \subsection{Namecoin and Emercoin}
+\begin{table}
+	\begin{tabular}{lrr}
+		\toprule
+		Malware & Domain & Lookups \\
+		\midrule
+		Gandcrab	&	malwarehunterteam.bit	&	696	\\
+			&	politiaromana.bit	&	682	\\
+			&	gdcb.bit	&	632	\\
+			&	zonealarm.bit	&	1256	\\
+			&	ransomware.bit	&	2078	\\
+			&	nomoreransom.coin	&	2242	\\
+		CHESSYLITE	&	leomoon.bit	&	1870	\\
+			&	lookstat.bit	&	1420	\\
+			&	sysmonitor.bit	&	1038	\\
+			&	volstat.bit	&	910	\\
+			&	xoonday.bit	&	1146	\\
+		Dofoil	&	vrubl.bit	&	1976	\\
+			&	levashov.bit	&	2118	\\
+			&	vinik.bit	&	12530	\\
+		KPOT Stealer	&	kpotuvorot10.bit	&	3902	\\
+			&	star-fox.bit	&	701	\\
+		Team9 Loader	&	bestgame.bazar	&	1884	\\
+			&	forgame.bazar	&	1730	\\
+			&	zirabuo.bazar	&	102	\\
+			&	tallcareful.bazar	&	292	\\
+			&	coastdeny.bazar	&	278	\\
+		BazaLoader	&	acegikbcggin.bazar	&	1092	\\
+			&	acegilbcggio.bazar	&	934	\\
+		Trojan RTM	&	stat-counter-[0-9]-[0-9].bit	&	20996	\\
+		Necurs	&	jfbbrj3bbbd.bit	&	3009	\\
+		\bottomrule
+	\end{tabular}
+	\caption{Examples of malicious Namecoin and Emercoin domains in the October sample of B-root 
+	queries. \randall{names need citations?}}
+	\label{tab:namecoin_emercoin}
+\end{table}
 
-Plenty of DGA .bit stuff in the b-root leakage, so malware is 
-still using Namecoin for sure. Should check the diffs between 
-the old and new B-root dumps (numbers of hits for each TLD, 
-etc)
+%Plenty of DGA .bit stuff in the b-root leakage, so malware is 
+%still using Namecoin for sure. Should check the diffs between 
+%the old and new B-root dumps (numbers of hits for each TLD, 
+%etc)
+%
+%Cite/summarize those two papers that found all sorts of 
+%nastiness on these chains.
 
-Cite/summarize those two papers that found all sorts of 
-nastiness on these chains.
+Because blockchain names require alternate resolution systems, we predicted 
+that many of them would ``leak'' into the DNS when misconfigured machines 
+attempt to resolve them as ordinary DNS domains. An observer might therefore be 
+able to see which names are popular by measuring which blockchain names are 
+requested through ordinary DNS requests. We took two 24-hour samples of names 
+with Namecoin and Emercoin's alternate TLDs that appeared in 
+queries to a root DNS server. One of these samples was from October 19, 2021, 
+and the other was from April 15, 2022. We examined the names from each sample 
+and found ample evidence of names that are likely to be used by malware. We manually inspected 
+the Emercoin and Namecoin names with the most queries, and found that the vast majority of the most 
+frequently queried names were associated with malware. An example of malware names from the October 
+sample of B-root queries is shown in Table~\ref{tab:namecoin_emercoin}. We found that many of the 
+names appeared to be randomly generated, making them unlikely to be benign. The only popular Emercoin 
+or Namecoin name that was not associated with malware was \texttt{nnm-club.lib}, which appears to be a 
+pirating site. These findings are consistent with previous work that found the vast majority of names 
+and IPs on Emercoin and Namecoin to be associated with malicious 
+behavior~\cite{patsakis_unravelling_2020, casino_unearthing_2021}. \randall{more results from these 
+papers?}
+
+%Second, \randall{something about how the domains looked up change over time}.
+
+%Second, we note that some of these names appear to be intended for typo 
+%squatting. \randall{Tens of? Hundreds of?} lookups occur for variations of 
+%popular names such as ``netflix,'' ``gmail,'' ``apple,'' and 
+%``yahoo.'' The string ``netflix'' in particular was popular. \randall{All of these were .kred and 
+%.luxe and stuff, not Namecoin/Emercoin.
 
 \subsubsection{Handshake}
 \begin{table}
