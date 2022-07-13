@@ -1168,22 +1168,45 @@ entirely intractable problem for defenders. For a naming system to present a
 threat, it must be both easily usable by malware authors and 
 popular enough that blocking its bootstrap nodes, or blocking 
 access to it entirely, will cause significant collateral damage to licit users.
+For a system to be widely adopted by licit users, it must have three necessary characteristics. 
 
-We speculate that malware authors are not yet using general-purpose 
-blockchains 
-because of the high cost of registering and updating names. If these costs 
-decrease in the future, or if defenders deny malware authors access to less 
-expensive alternatives, malware authors might be 
-forced to use general-purpose chains. We now outline the factors that we 
-predict to be necessary for a naming system to present a threat. 
+First, the system's name management must be as 
+easy or easier than name management on traditional DNS domains. Users must not be required to write 
+code themselves to interact with smart contracts, as is currently the case with each of the systems we 
+study. Users also must not be required to run a blockchain node in order to manage their names, as 
+Handshake currently requires to the best of our knowledge.
 
-What would cause a decentralized naming system to be popular enough that 
-defenders wouldn't want to block access to it?
-\begin{itemize}
-	\item Ease of use: owners don't have to write code
-	\item Affordable txns
-	\item Widespread browser adoption
-\end{itemize}
+Second, the transactions that are required to register and update names must be affordable. 
+Transactions on Ethereum, in our experience, cost anywhere between \$60 and \$140 during the course of 
+our experiments, although we discovered that we were attempting to make transactions during periods of 
+high network congestion and fees were unusually high. Even transaction fees as low as ten dollars per 
+transaction are far less affordable than transaction fees on naming-specific chains, which can be as 
+low as a few cents. This dynamic may make ordinary users more likely to embrace naming systems built 
+on naming-specific chains, rather than general-purpose chains. However, general-purpose chains may be 
+better known, and therefore more likely to be trusted by users even if transaction fees are higher 
+than on naming-specific chains. A trade-off may therefore exist between affordability and perceived 
+trustworthiness and name recognition. 
+
+Third, licit users are unlikely to embrace any naming system that does not have widespread browser 
+adoption. Browser adoption is hindered by naming systems' lack of coordination, which currently leads 
+to name collisions: for example, the alternate TLDs \texttt{.wallet}, \texttt{.coin}, and \texttt{.x} 
+are currently used by multiple blockchain naming systems. Some newly created ICANN TLDs also collide 
+with Handshake TLDs, such as \texttt{.music}. Naming collisions present a barrier to browser adoption 
+because the browser would either have to enforce some sort of precedence for systems that include 
+colliding names, or users would have to choose which naming system to use for each name with 
+collisions. Either option will confuse and frustrate users who are unfamiliar with the concepts of 
+namespaces. So far, only browsers that focus on privacy as one of their primary features have chosen 
+to resolve alternate naming systems, and none have chosen to resolve systems that might collide with 
+either each other or ICANN TLDs. Until browsers can resolve an alternate naming system natively, users 
+are unlikely to adopt that naming system.
+
+%What would cause a decentralized naming system to be popular enough that 
+%defenders wouldn't want to block access to it?
+%\begin{itemize}
+%	\item Ease of use: owners don't have to write code
+%	\item Affordable txns
+%	\item Widespread browser adoption
+%\end{itemize}
 
 \section{Conclusion}
 
