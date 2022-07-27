@@ -1,26 +1,32 @@
-\documentclass[10pt,sigconf,letterpaper]{acmart}
-
-\renewcommand\footnotetextcopyrightpermission[1]{} % 
-%removes footnote with conference info
-\setcopyright{none}
-\settopmatter{printacmref=false, printccs=false, 
-printfolios=false}
-\pagestyle{plain}
-
-
+\documentclass[conference]{IEEEtran}
 %\documentclass[10pt,sigconf,letterpaper]{acmart}
+
+%\renewcommand\footnotetextcopyrightpermission[1]{} % 
+%removes footnote with conference info
+%\setcopyright{none}
+%\settopmatter{printacmref=false, printccs=false, 
+%printfolios=false}
+%\pagestyle{plain}
+
+
 \usepackage{color}
 %\usepackage[nolist]{acronym}
 %\usepackage{amsmath,amssymb}
 \usepackage{pifont}
 %\usepackage{enumitem}
-%\usepackage{booktabs}
-%\usepackage{graphicx} % embedded graphics
-%\usepackage{url}
+\usepackage{booktabs}
+\usepackage{url}
 \usepackage{xcolor}
 %\usepackage{times}  % Times fonts look better
-%\usepackage{array}  % Extended styles for tables
-%\usepackage{textcomp}
+\usepackage{array}  % Extended styles for tables
+\usepackage{textcomp}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+		T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 % \iffalse
 \iftrue
@@ -29,7 +35,6 @@ printfolios=false}
 \newcommand{\geoff}[1]{\ding{110}\ding{43}\textcolor{violet}{#1}}
 \else
 \newcommand{\randall}{}
-\newcommand{\pes}{}
 \newcommand{\geoff}[1]{}
 \fi
 
@@ -44,14 +49,14 @@ printfolios=false}
 %\acmYear{2022}
 %\acmConference[IMC '22]{Internet Measurement 
 %Conference}{October 25--27, 2022}{Nice, France}
-\acmConference{}{}{}
+%\acmConference{}{}{}
 %\acmBooktitle{Internet Measurement Conference (IMC '22), 
 %October 25--27, 2022, Nice, France}
 %\acmPrice{TBA}
 
 \begin{document}
 
-%\author{Submission \#19}
+\author{Anonymous Authors}
 %\author{Audrey Randall}
 %\email{aurandal@eng.ucsd.edu}
 %\affiliation{UC San Diego}
@@ -127,7 +132,8 @@ printfolios=false}
 Malware that is distributed across multiple machines needs a way to distribute commands, upload stolen 
 data, and coordinate between infected hosts. Most malware, such as botnets or ransomware, uses a 
 central command and control (C2) server for this task. However, as a single point of failure, a 
-central C2 server presents an obvious weak link for defenders to target~\cite{kesari_deterring_2017}. 
+central C2 server presents an obvious weak link for defenders to target 
+~\cite{kesari_deterring_2017}. 
 Malware authors must therefore be able to easily relocate and replace a C2 server after a defender 
 takedown. All previously infected hosts must be able to find the new server at its new address, 
 without outside coordination --- if they cannot, they become useless. Malware authors avoid 
@@ -1291,7 +1297,7 @@ ease-of-use, and no existing naming systems have yet achieved all three characte
 %\subsection{Typo squatting}
 
 
-\bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{IEEEtran}
 \bibliography{references}
 
 %\appendix
