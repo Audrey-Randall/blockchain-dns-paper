@@ -1,0 +1,180 @@
+\section{Background}
+
+From a malware author's perspective, an ideal naming system for C2 
+addresses must be uncensorable at both the request level and the system level. 
+To be 
+uncensorable at the request level, there should be no central authority that 
+has the ability to enforce a legal takedown notice for an individual record. To 
+be uncensorable at the system level, the system should be valuable enough to 
+licit actors that authorities cannot block access to it entirely without 
+causing significant collateral damage to benign users.
+
+To some extent, a trade-off exists between these features. On 
+one side of the 
+spectrum, protocols like Tor provide high resistance to request-level 
+censorship, but they stand out in network traffic, allowing systems like 
+IDSes to detect the 
+malware's presence. For example, enterprise networks often block Tor 
+entirely under the assumption 
+that none of their employees will use it for any legitimate purpose.
+%but do not have enough licit traffic to prevent authorities from 
+%blocking access to the system entirely. \randall{Cite that paper that   
+	%said when you take away the malware, what's left is 80\% CSAM, and find 
+	%other 
+	%citations that say defenders block Tor.}
+On the other side of 
+the scale, malware has repurposed ubiquitous, benign systems 
+such as social media to store C2 addresses. Defenders do not 
+want to impose blanket bans on applications accessing social 
+media URLs, but social media companies such as Facebook and 
+Twitter have the capability, motivation, and legal obligation to enforce 
+legal takedown requests on individual posts. Malware authors want to use 
+systems that are balanced 
+between being difficult to block at the record level and difficult to detect 
+and block at the 
+system level.
+
+\subsection{DNS-based domain names}
+
+Traditional DNS has high system-level resistance to censorship but low 
+request-level resistance. 
+Since nearly every device and application on the Internet requires DNS, 
+enterprises and firewalls 
+almost never block it entirely. However, while DNS is a decentralized 
+system in terms of how its 
+components are replicated across the globe, it is not decentralized in terms 
+of authority. The 
+registrar that sold a domain can be compelled to ``delete'' that domain or 
+prevent it from being 
+updated or transferred. 
+
+The usual process for enacting a legal takedown in the United States works as 
+follows~\cite{knight_domain_2015}. Upon 
+identifying a domain that is being used as a C2 center, a law enforcement 
+entity may choose to make 
+an Acceptable Use Policy (AUP) complaint or may immediately seek a court order 
+compelling the 
+registrar to take down the domain. Some registrars cooperate with AUC 
+complaints without legal 
+intervention, but others do not. If the registrar does not respond to the 
+AUC complaint and take 
+down the domain, law enforcement may move on to using a court order. The 
+court order commonly 
+prevents the domain from being updated or transferred rather than deleting it 
+entirely, because if 
+the domain is deleted, it can be re-registered by the malware authors. The 
+court order also 
+specifies whether the domain should continue to resolve, resolve to a new IP 
+address specified by 
+the order, or stop resolving altogether. 
+
+Court orders may be obtained by civil parties as well. The most common method 
+is for a company to 
+apply for a temporary restraining order (TRO), which orders the perpetrators 
+of the offending 
+activity to cease and desist and requires any intermediaries that provide 
+services to the 
+perpetrators to cease providing those services~\cite{kesari_deterring_2017}. 
+The latter requirement 
+is what allows companies to require registrars to ``sinkhole'' C2 
+domains. 
+
+Legal domain takedown orders are a critical tool for defenders to disable 
+botnets. For example, 
+Microsoft obtained various court orders allowing it to sinkhole the C2 servers 
+of the botnet 
+Citadel in 2013. Microsoft successfully argued that Citadel caused the Windows 
+operating system to 
+behave maliciously and frustrate users while still bearing Microsoft 
+trademarks, as well as forcing 
+Microsoft to spend money on security features to combat 
+it~\cite{lerner_microsoft_2014}. The 
+Coreflood, Kelihos, and Rustock botnets were each disabled using legal 
+takedown orders obtained by 
+Microsoft, Pfizer (which claimed to suffer reputational harm because Rustock 
+sent spam emails for 
+counterfeit pharmaceuticals), and the Department of 
+Justice~\cite{kesari_deterring_2017}. These 
+takedowns are possible because in each case, some centralized entity had 
+control of the C2 servers' 
+domain names, and thus had the capability to take them down when legally 
+compelled to. Malware 
+authors are thus incentivized to find naming systems that are not vulnerable to 
+legal takedowns.  
+
+\subsection{Blockchain-based domain names}
+
+Blockchain-based naming systems present a potential threat 
+because they claim to be immune to takedowns. No central authority 
+controls blockchain domains in the same way that registrars 
+control traditional DNS names. In general, it is not possible to modify or 
+delete a record on a blockchain without controlling the record's private 
+key. Once a domain has 
+been registered, its ownership is passed to the purchaser, after which 
+point even the company that 
+sold it cannot modify it. The record is also stored immutably on the 
+blockchain for as long as the 
+chain exists, even if the owner later modifies or deletes it, because 
+historical recods are part of 
+the blockchain and cannot be erased. Blockchain-based naming systems 
+therefore have high resistance 
+to request-level censorship.
+
+Furthermore, some blockchains are popular enough to be challenging to block 
+without 
+harming licit users. Blockchains such as Bitcoin and Ethereum have recently 
+skyrocketed in popularity as investors became interested in cryptocurrency as 
+an asset class. Because these blockchains are no longer niche systems used 
+only by a few 
+technologically-savvy users, blocking access 
+to them entirely may be difficult without angering a large number of 
+legitimate users. As far as we are aware, cryptocurrencies and the blockchains 
+they rely on are the first examples of strongly censorship-resistant systems 
+that have gained a substantial community of legitimate users around the world.
+
+Blockchain is therefore an attractive option for malware authors to use as a 
+naming 
+layer for C2 server addresses. In fact, some malware is already exploiting 
+these tools.
+BazarLoader uses the Emercoin ``.bazar'' TLD to record the domains of its C2 
+servers~\cite{brandt_bazarloader_2021}. The Namecoin TLD 
+``.bit'' is used by the
+Necurs botnet~\cite{dgas_of_necurs}, the Chthonic banking 
+trojan~\cite{malware_traffic_analysis_2016}, Smoke Loader/Dofoil, 
+Backdoor.Teamviewer, Shifu, 
+and TinyNuke~\cite{abusech_2017, mackie_cryptodns_2018}. Cerber ransomware 
+has 
+even used blockchain wallet addresses as names for its C2 
+servers~\cite{pletinckx_malware_2018}.
+
+However, we find that blockchain domains are not as invincible as they 
+claim. While sinkholing 
+blockchain domains through their registrars is not possible, blockchain 
+domains have two different 
+weaknesses that DNS does not have: accessing the system and modifying records.
+
+Blockchain domains are not accessible through traditional DNS. Instead, 
+malware 
+must find a way to contact a member of the blockchain to resolve its chosen 
+domain. Malware authors 
+can implement this in two ways: they can either use a centralized proxy with a 
+known domain to gain 
+access to the blockchain, or they can act as first-class participants of the 
+blockchain themselves, 
+and participate in the peer-to-peer discovery protocol. Both approaches 
+present opportunities for 
+defenders to intervene. 
+
+Modifying records on blockchains also poses new challenges for both defenders 
+and malware authors. 
+Modifications are usually more expensive (in terms of money) than in DNS, 
+making fast flux or DGA 
+impractical on some chains. Similarly, if a defender wishes to register 
+all domains that a DGA 
+might produce, this becomes expensive on some chains.
+
+In the remainder of this work, we detail the specific challenges posed by the 
+blockchain DNS 
+ecosystem to malware authors and defenders, as well as the pieces of the 
+ecosystem where 
+effective interventions might be staged.

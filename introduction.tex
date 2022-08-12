@@ -1,0 +1,107 @@
+\section{Introduction}
+
+%\begin{itemize}
+%	\item Malware, particularly botnets (any other types? ransomware?) 
+%	uses DNS to reach CNC 
+%	servers. 
+%	\begin{itemize}
+	%		\item Malware needs a naming layer because of the 
+	%		sunk infrastructure cost: 
+	%		any malware already deployed that uses an IP that gets 
+	%blocked/taken 
+	%		over is now useless. Malware authors want a record they can change.
+	%		\item Naming layer needs to be hard to block at both 
+	%		the request level and the system level, so that 
+	%		already-distributed malware doesn't lose access and 
+	%		become useless. 
+	%	\end{itemize}
+%	\item DNS is decentralized in that there are many resolvers, but 
+%	centralized in that there are centralized authorities. Defenders can serve 
+%	legal takedown notices to those centralized authorities to block malware's 
+%	access to its CNC servers.
+%	\item Pivot: Malware is starting to use a truly decentralized naming 
+%	system, ``blockchain DNS.'' This creates several challenges for defenders:
+%	\begin{itemize}
+	%		\item No central authority is capable of enacting domain-level 
+	%takedown 
+	%		orders
+	%		\item For large chains, there is enough legitimate content that 
+	%		blocking access to the whole chain is infeasible
+	%		\item Transactions on large chains cost a lot of money. This limits 
+	%		defenders' abilities to stage interventions like pre-registering 
+	%all 
+	%		domains listed in a malware's DGA.
+	%	\end{itemize}
+%	\item We study the ecosystem and point out several places where 
+%	interventions are still possible, and discuss the challenges to defenders 
+%	and occasional advantages they gain when malware uses decentralized naming 
+%	such as blockchain DNS.
+%\end{itemize}
+
+Malware that is distributed across multiple machines needs a way to distribute 
+commands, upload stolen 
+data, and coordinate between infected hosts. Most malware, such as botnets or 
+ransomware, uses a 
+central command and control (C2) server for this task. However, as a single 
+point of failure, a 
+central C2 server presents an obvious weak link for defenders to 
+target~\cite{kesari_deterring_2017}. 
+Malware authors must therefore be able to easily relocate and replace a C2 
+server after a defender 
+takedown. All previously infected hosts must be able to find the new server at 
+its new address, 
+without outside coordination --- if they cannot, they become useless. Malware 
+authors avoid 
+this ``sunk cost'' problem by providing a layer of indirection --- a naming 
+layer --- instead of 
+hard-coding a fixed C2 server address directly into deployed malware. This 
+naming layer must be 
+resilient to takedown efforts.
+
+Until recently, the naming layer used most frequently by malware was ordinary 
+DNS, which is rarely 
+blocked at the protocol level, universally supported, and easy to configure. 
+Malware authors use 
+various strategies, such as fast flux or DGAs (domain generation algorithms), 
+to cycle through domains 
+or the IP addresses they resolve to and complicate defense efforts. However, 
+DNS domains are subject 
+to central authorities, who may be compelled to seize or deny access to abused 
+domains. Malware 
+authors have recently come up with an innovative solution to this risk: they 
+have started to use 
+\emph{decentralized naming systems}, in particular naming systems built on 
+blockchains. 
+
+Decentralized naming systems present several potential challenges for 
+defenders. First, because they 
+have no central authority to carry out legal takedown requests, decentralized 
+systems are immune to 
+one of the most effective tools in malware defenders' arsenals. Second, some 
+decentralized systems 
+have high transaction costs to register and manage domains, which renders 
+certain existing defender 
+strategies less effective. For example, registering all domains that a DGA 
+might eventually generate 
+is impractical in expensive decentralized naming systems. However, 
+decentralized naming systems 
+present challenges to malware authors as well, such as how to stealthily access 
+the system.
+
+We study the ecosystem and point out several places where defender 
+interventions are still possible. 
+In particular, we argue that infected hosts must pass through infrastructure 
+that is at least 
+partially centralized to access any fully decentralized naming system, and 
+these centralized or 
+partially centralized ``chokepoints'' still present viable points to stage 
+interventions. We also 
+study five existing decentralized, blockchain-based naming systems, and discuss 
+the challenges and 
+advantages that each present to malware authors and defenders. We conclude that 
+which decentralized 
+naming systems present a significant threat, defenders still have viable 
+options for enacting C2 
+takedowns.
+
+The remainder of this paper is organized as follows...

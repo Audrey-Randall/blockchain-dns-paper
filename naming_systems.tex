@@ -1,0 +1,281 @@
+\section{Specific naming systems}
+\subsection{General Purpose Naming Systems}
+
+Interestingly, systems like ENS and Unstoppable Domains are not advertised as 
+drop-in replacements for DNS. Rather than being intended specifically to 
+resolve to IP addresses, these naming systems often translate a human-readable 
+name to a \emph{wallet address} instead. While users can still store IP 
+addresses, very few choose to do so. \randall{need numbers here or later in 
+	specific chain section}. Some users store the addresses for distributed 
+	storage 
+systems, but the majority of configured records store wallet addresses. We also 
+note that a high percentage of names on ENS and Unstoppable Domains are not 
+configured to have records at all. There may be a few reasons why: first, names 
+resolve to the wallet address that owns them by default \randall{true on 
+	Unstoppable?}, which may be the only use some customers require. Second, 
+	while 
+purchasing a domain is very straightforward and only requires using a website, 
+adding a record requires interacting with smart contracts on the blockchain, 
+because only the owner of the domain may modify its records. The company that 
+sold the domain no longer has the ability to add records for the user unless 
+the user chooses to park their domain in the company's wallet-hosting service. 
+This requirement is not obvious at the purchasing step. Third, a large number 
+of names appear to be purchased as speculative assets rather than because users 
+wish to utilize them directly. 
+
+We now describe the workings of two Ethereum-based naming systems: the 
+Ethereum Name Service (ENS) and Unstoppable Domains. 
+\subsubsection{ENS}
+
+\begin{table}
+	\begin{tabular}{lrr}
+		\toprule
+		Resolver Name & Txns that Set this Resolver & Address \\
+		\midrule 
+		Public Resolver 2 & 33,304 & \texttt{0x4976fb...} \\
+		Public Resolver 1 & 2,736 & \texttt{0xDaaF96...} \\
+		OpenSea ENS resolver & 482 & \texttt{0x9C4e9C...} \\
+		ENS Old Public Resolver 2 & 440	& \texttt{0x226159...} \\
+		Umbra: Stealth Resolver & 409 & \texttt{0xB37671...} \\
+		\textit{unnamed PublicResolver} & 126 & \texttt{0xD3ddcC...} \\
+		\textit{unnamed PublicResolver} & 103 & \texttt{0x5FfC01...} \\
+		ENS Old Public Resolver 1 & 29 & \texttt{0x1da022...} \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:ens_resolvers}
+	\caption{The ENS resolvers from which we collected a sample of names and 
+		records.}
+\end{table}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=3in]{figs/ens_names.pdf}
+	\caption{Records stored by ENS names. *key within ``text'' record}
+	\label{fig:ens_records}
+\end{figure}
+
+ENS names use smart contracts to fill the roles of the single registrar and 
+multiple resolvers in the system. When claiming a name for the first 
+time, the user sends a transaction from their wallet to the ENS Registrar 
+Controller 
+contract, requesting that the name be registered and transferred to the 
+ownership of the wallet. The ENS Registrar Controller sets a number of default 
+values, including a default wallet 
+address record that maps the name to the wallet address that owns it, and a 
+default resolver contract for the 
+name, which at the moment is the ``ENS Public Resolver 2'' smart 
+contract.\footnote{The public 
+	resolver contract was updated in the past, and almost all ENS names have 
+	now 
+	changed their resolvers away
+	from the ``Old'' resolvers, usually to the current default resolvers.} To 
+	fully 
+resolve a 
+name, a user must first query the ENS Registrar Controller to determine the 
+name's designated resolver, and then query that resolver for the record 
+associated with the name. Resolver contracts are allowed to access the storage 
+of the ENS Registrar Controller, which means they don't have to perform another 
+transaction for the resolver to know that a new record has been created by the 
+ENS Registrar Controller. 
+
+Users cannot query a resolver for a name's records directly: they must first 
+convert the name to its keccak256 hash. These 
+name hashes are referred to as ``nodes.'' Because keccak256 hashes are not 
+reversible, 
+translating a node back to a name is a non-trivial process. Some name owners 
+choose to register their node-to-name mapping in the ``ENS Reverse Registrar'' 
+contract, but this practice is not required. While it is possible to enumerate 
+all of the transactions that recorded new names from the Registrar Controller 
+Contract (and its historical predecessors, such as a contract that was used to 
+register short names earlier in ENS's lifetime), this approach still yields some
+nodes for which names were never recorded. 
+
+requires another contract, the ENS Reverse 
+Registrar. Names are not required to have entries in the ENS Reverse Registrar, 
+so this contract is not always able to translate a given node 
+back to a name. 
+
+One more notable feature of ENS names is that anyone may renew 
+them, not just their owners. The reason for this design choice 
+is unclear.
+
+To study this ecosystem, we took a sample of names from the eight resolver 
+contracts that were set by the most names as their default resolver. We chose 
+eight because the distribution of resolvers is long-tailed: the majority of 
+resolvers resolve only a few names, while the eight most popular resolvers 
+resolve the majority of names. We excluded addresses that were set as resolvers 
+by many names but did not implement the ENS resolver specification, under the 
+assumption that these were mistakes. Such misconfigured resolver addresses 
+include the null address, 
+0x0, as well as other smart contracts used by the ENS ecosystem, such as the 
+``Base Registrar Implementation.''  The remainder of the resolvers we chose are 
+detailed in Table~\ref{tab:ens_resolvers}.
+
+At the time that we performed this study, 667,369 ENS names had been 
+registered through the Registrar Controller contract. Names that did not 
+specify a resolver when they were registered 
+were assigned the default ENS Public Resolver 2, which presumably accounts for 
+the vast majority of the names that never performed an explicit transaction 
+setting their resolver. \randall{I'm in the middle of checking this.} 
+
+Figure~\ref{fig:ens_records} shows the distribution of the types of records 
+stored by our sample of names. The majority resolve to wallet addresses or text 
+records, not IP addresses, traditional domains, or DS addresses. We broke down 
+the text records, which are key/value pairs, by the most common key names: 
+these keys are marked with an asterisk. Only the most common 25 keys are shown. 
+We note that only 17 names had \texttt{dns\_wire\_format} records, which are 
+intended to store traditional DNS 
+records, and all 17 are malformed as far as we can tell. \randall{should maybe 
+	work on that some more? Couldn't tell what was wrong by examining the 
+	octets.}
+
+%Describe the registrar/registry/resolver structure. We took a sample 
+%of X domains from the most 
+%frequently updated resolver contracts.
+%
+%Haven't found anything bad yet except loli-hentai.x. This 
+%system, like all other uncensorable systems, will probably 
+%eventually attract CSAM. Describe what we did to find 
+%domains, how I crawled a subset.
+
+\subsubsection{Unstoppable Domains}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=3in]{figs/all_unstoppable_records.pdf}
+	\caption{Records stored by Unstoppable Domains names.}
+	\label{fig:unstoppable_records}
+\end{figure}
+
+%Describe the registry contract and the crawled domains (I did 
+%crawl these didn't I?)
+
+Like ENS, Unstoppable Domains uses Ethereum smart contracts as 
+registrars. Unstoppable names are divided into two systems. CNS 
+(Crypto Name System) contains all names with \texttt{.crypto} 
+TLDs, and has separate registry and resolver contracts. This 
+system was created first. Later, Unstoppable added UNS 
+(Unstoppable Name System), which simplified name resolution by 
+combining the resolver and registry contracts, and added several 
+new TLDs. Unstoppable names never have to be renewed; they are 
+purchased once and then owned for life. This is primarily 
+because Unstoppable Domains does not have the capability to 
+reclaim a name unless the private key of the owning wallet is 
+known to them. 
+
+Unstoppable names are referenced by their namehashes, which are 
+similar to ENS's ``nodes.'' We extracted all namehashes from the 
+Unstoppable Domains registry contract by searching all of its 
+transactions, and then found each name's records by querying 
+Unstoppable's metadata endpoint.\footnote{
+	\texttt{https://metadata.unstoppabledomains.com/metadata/}} 
+Figure~\ref{fig:unstoppable_records} shows the 
+distribution 
+of record types found in the Unstoppable Domains names. As in 
+ENS, the majority of names have wallet records rather than 
+records that point to websites in any way. The next most common 
+type of record is ``whois.for\_sale.value,'' showing that many 
+names are seen as speculative assets. Unstoppable Domains also 
+provides an easy way for users to link to IPFS records. IPFS, 
+the ``Inter-Planetary File System,'' is a distributed 
+blockchain-based hosting service that allows users to host 
+static websites.
+
+We performed a web crawl of all of the Unstoppable names that 
+had records pointing to websites, whether IPFS records, 
+traditional IP addresses, or traditional domains. We took 
+screenshots of the 367 websites we arrived 
+at, inspected them manually, and did not find any evidence of 
+malware use. Most 
+websites were personal sites, Web3-based business sites, or related to the sale 
+or collection of NFTs. 
+
+We also examined the sample of names from B-root for any Unstoppable Domains 
+names that appeared to be associated with malware. 
+
+Unstoppable Domains has claimed that their naming system is not well suited for 
+malware authors or other miscreants for two reasons. First, Unstoppable Domains 
+claims to police which domains may be sold. The CEO of Unstoppable Domains, 
+Matthew Gould, stated in an email that Unstoppable ``prevented the 
+registration of domains associated with known pirating software or other types 
+of IP theft and fraud''~\cite{pegoraro_blockchain_2021}. Second, Unstoppable 
+can also seize a domain if that 
+domain is hosted by Unstoppable's custody 
+wallet, instead of by a private wallet~\cite{pegoraro_blockchain_2021}. In 
+fact, other wallet hosting 
+services, such as Coinbase's, 
+could presumably also seize wallets that store domains, since the private 
+keys of those wallets are 
+known to the service. However, we note that seizing hosted wallets may not 
+be a reliable 
+intervention, because malware authors can evade this tactic by simply using 
+self-hosted wallets. 
+
+\subsection{Naming-Specific Blockchains}
+\subsubsection{Namecoin and Emercoin}
+\subsubsection{Handshake}
+\begin{table}
+	\begin{tabular}{lr}
+		\toprule
+		Record & Names with Record \\
+		\midrule
+		Default NS and GLUE4 records & 102,386 \\
+		\hspace*{0.2in} No A records & 102,285\\
+		\hspace*{0.2in} A 44.235.163.135 & 94 \\
+		\hspace*{0.2in} A 52.43.158.89 & 4 \\
+		\hspace*{0.2in} A 144.91.114.245 & 2 \\
+		\hspace*{0.2in} A 1.1.1.1 & 1 \\
+		Invalid name & 98,068 \\
+		No record (null) & 845 \\
+		TXT record & 138 \\
+		\hspace*{0.2in} ``hello fx-wallet'' & 110 \\
+		\hspace*{0.2in} Other & 28 \\
+		Non-default NS record & 32 \\
+		Non-default GLUE4 record & 11 \\
+		Distributed storage address & 7 \\
+		\midrule
+		Total unique names & 201,458 \\
+		Total records & 201,487 \\
+		\bottomrule
+	\end{tabular}
+	\caption{Record types in the Handshake namespace.}
+	\label{tab:handshake_records}
+\end{table}
+
+Handshake is a new blockchain-based system that aims to 
+replace the root DNS 
+zone. As such, it offers its users the ability to purchase 
+nearly any string to 
+use as a TLD. Rather than selling second-level domains 
+itself, the Handshake ecosystem purports to allow its users 
+to act as registrars who can sell their own domains. 
+Handshake's stated goal is not to replace the traditional DNS 
+system: Handshake records are designed to store the domains 
+and IP addresses of traditional authoritative nameservers, 
+rather than to store A, AAAA, or CNAME records. However, we note that nothing 
+restricts malware authors from recording the IP addresses of C2 servers as NS 
+records, or running an authoritative nameserver and a C2 server on the same 
+machine. Handshake also allows users to store TXT records, which can 
+contain the addresses for decentralized web hosting systems 
+like Skynet or IPFS. Malware users could potentially use 
+Handshake as a naming system to find content stored in 
+content-addressed distributed storage systems. Additionally, Handshake 
+advertises themselves as ``the only naming blockchain with a lightweight 
+recursive DNS resolver, which you can easily embed into 
+browsers, apps, and devices''~\cite{namebase_access_handshake}. 
+This lightweight resolver may be attractive to malware authors because it is 
+small enough to use as part of a malware payload.
+
+We collected a sample of approximately 201,000 Handshake names and analyzed the 
+records assocated with them. Table~\ref{tab:handshake_records} 
+summarizes our findings. At the moment, Handshake names appear to be 
+overwhelmingly used as speculative assets. Only 0.14\% of names in our sample 
+had records that led to either IP addresses or DS addresses, assuming the 
+non-default nameserver and glue records do lead to IP addresses or DS 
+addresses. Nearly half of registered Handshake domains in our sample cannot be 
+resolved by the HNS client, since they contain illegal characters like emojis 
+or are solely composed of numbers: these names are nevertheless allowed to be 
+minted.
+
+Because these names seem to have very few records and we can't look them all 
+up, we don't pay Handshake much attention from here on out.

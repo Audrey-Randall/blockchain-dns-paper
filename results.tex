@@ -1,0 +1,177 @@
+\section{Measurements of Name Resolution Queries}
+% this is the b-root section
+
+Because blockchain names require alternate resolution systems, we predicted 
+that many of them would ``leak'' into the DNS when misconfigured machines 
+attempt to resolve them as ordinary DNS domains. An observer might therefore be 
+able to see which names are popular by measuring which blockchain names are 
+requested through ordinary DNS requests. We took two 24-hour samples of names 
+with Namecoin and Emercoin's alternate TLDs that appeared in 
+queries to a root DNS server. One of these samples was from October 19, 2021, 
+and the other was from April 15, 2022.
+
+Discovering which names users are resolving in blockchain-based 
+naming systems is challenging: methods that work in traditional DNS, such as 
+cache snooping, rely on knowing which domains to look for, and reads within a 
+blockchain system don't leave traces in cache the way lookups to ordinary 
+resolvers do. We hypothesized that some attempts to resolve blockchain names 
+would be misconfigured and might leak into regular DNS. To test this 
+hypothesis, we obtained samples of the queries for domains with BNS alt-TLDs 
+from one of the root DNS resolvers, B-root.
+
+\subsection{Removing irrelevant queries}
+
+Some queries for domains with alt-TLDs at B-root were unrelated to the 
+blockchain systems they share alt-TLDs with. A prior study on root DNS queries 
+found that some networks use non-ICANN TLDs internally under the assumption 
+that queries for those names will never reach external DNS resolvers. However, 
+these queries frequently leak to external networks~\cite{chen_wpad_2016}. We 
+observed that some 
+internal networks use alt-TLDs that overlap with the blockchain naming systems' 
+alt-TLDs. For example, we observed numerous queries for subdomains of 
+\texttt{kroger.com.btc}, \texttt{nordic.x}, \texttt{sata.x}, and others. These 
+domains are not registered in the Unstoppable Domains namespace. We removed 
+names from the B-root sample if they were not registered in their respective 
+blockchain-based naming system.
+
+We also discovered that domains used in the WPAD discovery protocol, a protocol 
+used for local network participants to discover DNS proxies, used alt-TLDs that 
+overlapped with blockchain DNS. WPAD DNS lookups take the form of 
+\texttt{wpad.company-name.alt-TLD}~\cite{chen_wpad_2016}. If we observe a 
+request of that form, we consider it to be strong evidence that other requests 
+to subdomains of \texttt{company-name.alt-TLD} have escaped from an internal 
+network. We remove these requests from our sample as well.
+
+After removing names that are not registered in Unstoppable Domains, we 
+observed no more than six names with each Unstoppable TLD requested from B-root 
+on either of our sample days. Either no one is using Unstoppable to look up 
+domains (consistent with the types of records they store), or Unstoppable has 
+modest adoption but most people are using the extensions properly.
+
+ENS names leaked slightly more frequently: we saw 186 names in the October 19th
+sample and 313 in the April 15th sample. 
+
+But what about the unregistered domains?
+
+\subsection{Queries for Namecoin and Emercoin Names}
+
+\begin{table}
+	\begin{tabular}{lrr}
+		\toprule
+		Malware & Domain & Lookups \\
+		\midrule
+		Gandcrab	&	malwarehunterteam.bit	&	696	\\
+		&	politiaromana.bit	&	682	\\
+		&	gdcb.bit	&	632	\\
+		&	zonealarm.bit	&	1256	\\
+		&	ransomware.bit	&	2078	\\
+		&	nomoreransom.coin	&	2242	\\
+		CHESSYLITE	&	leomoon.bit	&	1870	\\
+		&	lookstat.bit	&	1420	\\
+		&	sysmonitor.bit	&	1038	\\
+		&	volstat.bit	&	910	\\
+		&	xoonday.bit	&	1146	\\
+		Dofoil	&	vrubl.bit	&	1976	\\
+		&	levashov.bit	&	2118	\\
+		&	vinik.bit	&	12530	\\
+		KPOT Stealer	&	kpotuvorot10.bit	&	3902	\\
+		&	star-fox.bit	&	701	\\
+		Team9 Loader	&	bestgame.bazar	&	1884	\\
+		&	forgame.bazar	&	1730	\\
+		&	zirabuo.bazar	&	102	\\
+		&	tallcareful.bazar	&	292	\\
+		&	coastdeny.bazar	&	278	\\
+		BazarLoader	&	acegikbcggin.bazar	&	1092	\\
+		&	acegilbcggio.bazar	&	934	\\
+		Trojan RTM	&	stat-counter-[0-9]-[0-9].bit	&	20996	\\
+		Necurs	&	jfbbrj3bbbd.bit	&	3009	\\
+		\bottomrule
+	\end{tabular}
+	\caption{Examples of malicious Namecoin and Emercoin domains in the October 
+	sample of B-root 
+		queries.}
+	\label{tab:namecoin_emercoin}
+\end{table}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=3in]{figs/namecoin_and_emercoin_tlds_num_names.pdf}
+	\caption{Number of unique Emercoin and Namecoin names requested in day-long 
+		samples from B-root.}
+	\label{fig:namecoin_and_emercoin_names}
+\end{figure}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=3in]{figs/namecoin_and_emercoin_tlds_num_counts.pdf}
+	\caption{Total requests for Emercoin and Namecoin names in day-long samples 
+		from B-root.}
+	\label{fig:namecoin_and_emercoin_counts}
+\end{figure}
+
+ We examined the names from each sample 
+and found ample evidence of names that are likely to be used by malware. We 
+manually inspected 
+the Emercoin and Namecoin names with the most queries, and found that the vast 
+majority of the most 
+frequently queried names were associated with malware. An example of malware 
+names from the October 
+sample of B-root queries is shown in Table~\ref{tab:namecoin_emercoin}. We 
+found that many of the 
+names appeared to be randomly generated, making them unlikely to be benign. 
+\randall{not true, randomly generated could be non-malware we just don't know 
+	what they are.} The only popular Emercoin 
+or Namecoin name that was not associated with malware was 
+\texttt{nnm-club.lib}, which appears to be a 
+pirating site. These findings are consistent with previous work that found the 
+vast majority of names 
+and IPs on Emercoin and Namecoin to be associated with malicious 
+behavior~\cite{patsakis_unravelling_2020, casino_unearthing_2021}. 
+\randall{more results from these 
+	papers?}
+
+\subsection{Queries for UD and ENS names}
+
+%Second, we note that some of these names appear to be intended for typo 
+%squatting. \randall{Tens of? Hundreds of?} lookups occur for variations of 
+%popular names such as ``netflix,'' ``gmail,'' ``apple,'' and 
+%``yahoo.'' The string ``netflix'' in particular was popular. \randall{All of 
+%these were .kred and 
+	%.luxe and stuff, not Namecoin/Emercoin.
+	
+\subsection{.x}
+
+When you remove the unregistered Unstoppable and ENS domains and the wpad 
+domains, there’s like ONE .x domain left. I guess a lot of the .x domains were 
+either misconfigured IP addresses (2218, found with 
+commented regex) or randomly generated names (6956, according to my heuristic 
+of no English words above either 4 or 5 chars (check this, probably redo this 
+number)) %([0-9]+|x+)\.([0-9]+|x+)\.([0-9]+|x+)\.x\.\s
+
+\subsection{.bit and .bazar}
+
+.bit names have a huge number of lookups for a small number of names. This is 
+in contrast to the randomly generated .eth and .x names, the vast majority of 
+which have two lookups each. Since we are pretty sure the majority of .bit 
+names are malware-related, and having tons of lookups is consistent with how 
+DGAs work, we predict that the randomly generated .x, .eth, and .bitcoin 
+domains are not attempts to find C2 domains.
+
+
+
+%\begin{figure}[t]
+%	\centering
+%	
+%\includegraphics[width=3in]{figs/ud_and_ens_tlds_num_names_no_wpad_or_unregistered_ens_ud.pdf}
+%	\caption{Number of unique Emercoin and Namecoin names requested in day-long 
+	%		samples from B-root.}
+%	\label{fig:ud_and_ens_names}
+%\end{figure}
+%\begin{figure}[t]
+%	\centering
+%	
+%\includegraphics[width=3in]{figs/ud_and_ens_tlds_num_counts_no_wpad_or_unregistered_ens_ud.pdf}
+%	\caption{Total requests for Emercoin and Namecoin names in day-long samples 
+	%		from B-root.}
+%	\label{fig:ud_and_ens_counts}
+%\end{figure}
