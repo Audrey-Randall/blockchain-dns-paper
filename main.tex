@@ -25,6 +25,8 @@
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
+\usepackage{caption} 
+\captionsetup[table]{skip=10pt}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
 		T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -132,8 +134,8 @@
 Malware that is distributed across multiple machines needs a way to distribute commands, upload stolen 
 data, and coordinate between infected hosts. Most malware, such as botnets or ransomware, uses a 
 central command and control (C2) server for this task. However, as a single point of failure, a 
-central C2 server presents an obvious weak link for defenders to target 
-~\cite{kesari_deterring_2017}. 
+central C2 server presents an obvious weak link for defenders to 
+target~\cite{kesari_deterring_2017}. 
 Malware authors must therefore be able to easily relocate and replace a C2 server after a defender 
 takedown. All previously infected hosts must be able to find the new server at its new address, 
 without outside coordination --- if they cannot, they become useless. Malware authors avoid 
@@ -686,13 +688,48 @@ become unavailable.
 Name-specific chains, such as Namecoin, Emercoin, and 
 Handshake, tend to have fewer participants, less popularity, 
 and lower transaction fees. General-purpose chains, such as 
-Bitcoin and Ethereum, have naming systems built on top of the 
-underlying chain. Examples of these naming systems include ENS, Unstoppable 
-Domains, and 
-Blockstack. These chains have higher transaction or gas fees, which users 
-must pay whenever they 
-modify a domain's record, and the names tend to be much more expensive to 
-purchase. 
+Ethereum, have naming systems built on top of the underlying blockchain. 
+Examples of these naming systems include ENS, Unstoppable Domains, and 
+Handshake. These chains have higher transaction or gas fees, which users 
+must pay whenever they modify a domain's record, and the names tend to be much 
+more expensive to purchase. 
+
+To 
+analyze the two different types of naming systems, we select several of each 
+type and perform two analyses. The first is a summary of how the system works, 
+including how the smart contracts interact with each other, etc. The second is 
+an estimate of the types of names and their uses that users are actually 
+resolving. Discovering which names users are resolving in blockchain-based 
+naming systems is challenging: methods that work in traditional DNS, such as 
+cache snooping, rely on knowing which domains to look for, and reads within a 
+blockchain system don't leave traces in cache the way lookups to ordinary 
+resolvers do. We hypothesized that some attempts to resolve blockchain names 
+would be misconfigured and might leak into regular DNS. To test this 
+hypothesis, we obtained samples of the queries for domains with BNS alt-TLDs 
+from one of the root DNS resolvers, B-root.
+
+Some queries for domains with alt-TLDs at B-root were unrelated to the 
+blockchain systems they share alt-TLDs with. A prior study on root DNS queries 
+found that some networks use non-ICANN TLDs internally under the assumption 
+that queries for those names will never reach external DNS resolvers. However, 
+these queries frequently leak to external networks~\cite{chen_wpad_2016}. We 
+observed that some 
+internal networks use alt-TLDs that overlap with the blockchain naming systems' 
+alt-TLDs. For example, we observed numerous queries for subdomains of 
+\texttt{kroger.com.btc}, \texttt{nordic.x}, \texttt{sata.x}, and others. These 
+domains are not registered in the Unstoppable Domains namespace. We removed 
+names from the B-root sample if they were not registered in their respective 
+blockchain-based naming system.
+
+We also discovered that domains used in the WPAD discovery protocol, a protocol 
+used for local network participants to discover DNS proxies, used alt-TLDs that 
+overlapped with blockchain DNS. WPAD DNS lookups take the form of 
+\texttt{wpad.company-name.alt-TLD}~\cite{chen_wpad_2016}. If we observe a 
+request of that form, we consider it to be strong evidence that other requests 
+to subdomains of \texttt{company-name.alt-TLD} have escaped from an internal 
+network. We remove these requests from our sample as well.
+
+
 
 \subsection{Challenges on general-purpose chains}
 \randall{Say somewhere that reads don't cost anything, only writes}
@@ -761,18 +798,20 @@ addresses, very few choose to do so. \randall{need numbers here or later in
 specific chain section}. Some users store the addresses for distributed storage 
 systems, but the majority of configured records store wallet addresses. We also 
 note that a high percentage of names on ENS and Unstoppable Domains are not 
-configured to have records at all. There may be a few reasons why: first, while 
-purchasing a domain is very straightforward, adding a record requires 
-interacting with smart contracts on the blockchain, because only the owner of 
-the domain may modify its records. The company that sold the domain no longer 
-has the ability to add records for the user unless the user chooses to park 
-their domain in the company's wallet-hosting service. This requirement is not 
-obvious at the purchasing step. Second, a large number of names appear to be 
-purchased as speculative assets rather than because users wish to utilize them 
-directly. 
+configured to have records at all. There may be a few reasons why: first, names 
+resolve to the wallet address that owns them by default \randall{true on 
+Unstoppable?}, which may be the only use some customers require. Second, while 
+purchasing a domain is very straightforward and only requires using a website, 
+adding a record requires interacting with smart contracts on the blockchain, 
+because only the owner of the domain may modify its records. The company that 
+sold the domain no longer has the ability to add records for the user unless 
+the user chooses to park their domain in the company's wallet-hosting service. 
+This requirement is not obvious at the purchasing step. Third, a large number 
+of names appear to be purchased as speculative assets rather than because users 
+wish to utilize them directly. 
 
-We now describe specific Ethereum-based naming systems in more detail.
-
+We now describe the workings of two Ethereum-based naming systems: the 
+Ethereum Name Service (ENS) and Unstoppable Domains. 
 \subsubsection{ENS}
 
 \begin{table}
@@ -814,8 +853,8 @@ default resolver contract for the
 name, which at the moment is the ``ENS Public Resolver 2'' smart 
 contract.\footnote{The public 
 resolver contract was updated in the past, and almost all ENS names have now 
-changed their resolvers 
-from the ``Old'' resolvers to the current resolvers.} To fully 
+changed their resolvers away
+from the ``Old'' resolvers, usually to the current default resolvers.} To fully 
 resolve a 
 name, a user must first query the ENS Registrar Controller to determine the 
 name's designated resolver, and then query that resolver for the record 
@@ -828,7 +867,15 @@ Users cannot query a resolver for a name's records directly: they must first
 convert the name to its keccak256 hash. These 
 name hashes are referred to as ``nodes.'' Because keccak256 hashes are not 
 reversible, 
-translating a node back to a name requires another contract, the ENS Reverse 
+translating a node back to a name is a non-trivial process. Some name owners 
+choose to register their node-to-name mapping in the ``ENS Reverse Registrar'' 
+contract, but this practice is not required. While it is possible to enumerate 
+all of the transactions that recorded new names from the Registrar Controller 
+Contract (and its historical predecessors, such as a contract that was used to 
+register short names earlier in ENS's lifetime), this approach still yields some
+nodes for which names were never recorded. 
+
+requires another contract, the ENS Reverse 
 Registrar. Names are not required to have entries in the ENS Reverse Registrar, 
 so this contract is not always able to translate a given node 
 back to a name. 
@@ -850,7 +897,8 @@ include the null address,
 detailed in Table~\ref{tab:ens_resolvers}.
 
 At the time that we performed this study, 667,369 ENS names had been 
-registered. Names that did not specify a resolver when they were registered 
+registered through the Registrar Controller contract. Names that did not 
+specify a resolver when they were registered 
 were assigned the default ENS Public Resolver 2, which presumably accounts for 
 the vast majority of the names that never performed an explicit transaction 
 setting their resolver. \randall{I'm in the middle of checking this.} 
@@ -902,9 +950,9 @@ known to them.
 Unstoppable names are referenced by their namehashes, which are 
 similar to ENS's ``nodes.'' We extracted all namehashes from the 
 Unstoppable Domains registry contract by searching all of its 
-transactions, and then found each name's records by querying the 
-Unstoppable metadata endpoint at 
-\texttt{https://metadata.unstoppabledomains.com/metadata/}. 
+transactions, and then found each name's records by querying 
+Unstoppable's metadata endpoint.\footnote{
+\texttt{https://metadata.unstoppabledomains.com/metadata/}} 
 Figure~\ref{fig:unstoppable_records} shows the 
 distribution 
 of record types found in the Unstoppable Domains names. As in 
@@ -926,10 +974,13 @@ malware use. Most
 websites were personal sites, Web3-based business sites, or related to the sale 
 or collection of NFTs. 
 
+We also examined the sample of names from B-root for any Unstoppable Domains 
+names that appeared to be associated with malware. 
+
 Unstoppable Domains has claimed that their naming system is not well suited for 
-malware authors or other miscreants for two reasons. First, Unstoppable 
-polices which domains may be sold. The CEO of Unstoppable Domains, Matthew 
-Gould, stated in an email that Unstoppable ``prevented the 
+malware authors or other miscreants for two reasons. First, Unstoppable Domains 
+claims to police which domains may be sold. The CEO of Unstoppable Domains, 
+Matthew Gould, stated in an email that Unstoppable ``prevented the 
 registration of domains associated with known pirating software or other types 
 of IP theft and fraud''~\cite{pegoraro_blockchain_2021}. Second, Unstoppable 
 can also seize a domain if that 
@@ -945,6 +996,34 @@ intervention, because malware authors can evade this tactic by simply using
 self-hosted wallets. 
 
 \subsubsection{Low malware adoption of Ethereum-based naming services}
+
+%\begin{figure}[t]
+%	\centering
+%	
+%\includegraphics[width=3in]{figs/ud_and_ens_tlds_num_names_no_wpad_or_unregistered_ens_ud.pdf}
+%	\caption{Number of unique Emercoin and Namecoin names requested in day-long 
+%		samples from B-root.}
+%	\label{fig:ud_and_ens_names}
+%\end{figure}
+%\begin{figure}[t]
+%	\centering
+%	
+%\includegraphics[width=3in]{figs/ud_and_ens_tlds_num_counts_no_wpad_or_unregistered_ens_ud.pdf}
+%	\caption{Total requests for Emercoin and Namecoin names in day-long samples 
+%		from B-root.}
+%	\label{fig:ud_and_ens_counts}
+%\end{figure}
+
+After removing names that are not registered in Unstoppable Domains, we 
+observed no more than six names with each Unstoppable TLD requested from B-root 
+on either of our sample days. Either no one is using Unstoppable to look up 
+domains (consistent with the types of records they store), or Unstoppable has 
+modest adoption but most people are using the extensions properly.
+
+ENS names leaked slightly more frequently: we saw 186 names in the October 19th
+sample and 313 in the April 15th sample. 
+
+But what about the unregistered domains?
 
 So far, we have not found evidence that malware authors are 
 transitioning to Ethereum-based naming services. We suspect that the high 
@@ -1011,16 +1090,31 @@ bootstrap nodes to prevent new peers from joining the blockchain.
 			&	zirabuo.bazar	&	102	\\
 			&	tallcareful.bazar	&	292	\\
 			&	coastdeny.bazar	&	278	\\
-		BazaLoader	&	acegikbcggin.bazar	&	1092	\\
+		BazarLoader	&	acegikbcggin.bazar	&	1092	\\
 			&	acegilbcggio.bazar	&	934	\\
 		Trojan RTM	&	stat-counter-[0-9]-[0-9].bit	&	20996	\\
 		Necurs	&	jfbbrj3bbbd.bit	&	3009	\\
 		\bottomrule
 	\end{tabular}
 	\caption{Examples of malicious Namecoin and Emercoin domains in the October sample of B-root 
-	queries. \randall{names need citations?}}
+	queries.}
 	\label{tab:namecoin_emercoin}
 \end{table}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=3in]{figs/namecoin_and_emercoin_tlds_num_names.pdf}
+	\caption{Number of unique Emercoin and Namecoin names requested in day-long 
+	samples from B-root.}
+	\label{fig:namecoin_and_emercoin_names}
+\end{figure}
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=3in]{figs/namecoin_and_emercoin_tlds_num_counts.pdf}
+	\caption{Total requests for Emercoin and Namecoin names in day-long samples 
+	from B-root.}
+	\label{fig:namecoin_and_emercoin_counts}
+\end{figure}
 
 %Plenty of DGA .bit stuff in the b-root leakage, so malware is 
 %still using Namecoin for sure. Should check the diffs between 
@@ -1042,7 +1136,9 @@ and found ample evidence of names that are likely to be used by malware. We manu
 the Emercoin and Namecoin names with the most queries, and found that the vast majority of the most 
 frequently queried names were associated with malware. An example of malware names from the October 
 sample of B-root queries is shown in Table~\ref{tab:namecoin_emercoin}. We found that many of the 
-names appeared to be randomly generated, making them unlikely to be benign. The only popular Emercoin 
+names appeared to be randomly generated, making them unlikely to be benign. 
+\randall{not true, randomly generated could be non-malware we just don't know 
+what they are.} The only popular Emercoin 
 or Namecoin name that was not associated with malware was \texttt{nnm-club.lib}, which appears to be a 
 pirating site. These findings are consistent with previous work that found the vast majority of names 
 and IPs on Emercoin and Namecoin to be associated with malicious 
@@ -1116,9 +1212,10 @@ summarizes our findings. At the moment, Handshake names appear to be
 overwhelmingly used as speculative assets. Only 0.14\% of names in our sample 
 had records that led to either IP addresses or DS addresses, assuming the 
 non-default nameserver and glue records do lead to IP addresses or DS 
-addresses. Nearly half of registered Handshake domains cannot be resolved by 
-the HNS client, since they contain illegal characters like emojis or are solely 
-composed of numbers: these names are nevertheless allowed to be minted.
+addresses. Nearly half of registered Handshake domains in our sample cannot be 
+resolved by the HNS client, since they contain illegal characters like emojis 
+or are solely composed of numbers: these names are nevertheless allowed to be 
+minted.
 
 %Handshake stats:
 %\begin{itemize}
@@ -1140,6 +1237,48 @@ composed of numbers: these names are nevertheless allowed to be minted.
 %	look like someone's unconfigured personal website.
 %\end{itemize}
 
+\section{Further B-Root Measurements}
+
+Some queries for domains with alt-TLDs at B-root were unrelated to the 
+blockchain systems they share alt-TLDs with. A prior study on root DNS queries 
+found that some networks use non-ICANN TLDs internally under the assumption 
+that queries for those names will never reach external DNS resolvers. However, 
+these queries frequently leak to external networks~\cite{chen_wpad_2016}. We 
+observed that some 
+internal networks use alt-TLDs that overlap with the blockchain naming systems' 
+alt-TLDs. For example, we observed numerous queries for subdomains of 
+\texttt{kroger.com.btc}, \texttt{nordic.x}, \texttt{sata.x}, and others. These 
+domains are not registered in the Unstoppable Domains namespace. We removed 
+names from the B-root sample if they were not registered in their respective 
+blockchain-based naming system.
+
+We also discovered that domains used in the WPAD discovery protocol, a protocol 
+used for local network participants to discover DNS proxies, used alt-TLDs that 
+overlapped with blockchain DNS. WPAD DNS lookups take the form of 
+\texttt{wpad.company-name.alt-TLD}~\cite{chen_wpad_2016}. If we observe a 
+request of that form, we consider it to be strong evidence that other requests 
+to subdomains of \texttt{company-name.alt-TLD} have escaped from an internal 
+network. We remove these requests from our sample as well.
+
+\subsection{.x}
+
+When you remove the unregistered Unstoppable and ENS domains and the wpad 
+domains, there’s like ONE .x domain left. I guess a lot of the .x domains were 
+either misconfigured IP addresses (2218, found with 
+commented regex) or randomly generated names (6956, according to my heuristic 
+of no English words above either 4 or 5 chars (check this, probably redo this 
+number)) %([0-9]+|x+)\.([0-9]+|x+)\.([0-9]+|x+)\.x\.\s
+
+\subsection{.bit and .bazar}
+
+.bit names have a huge number of lookups for a small number of names. This is 
+in contrast to the randomly generated .eth and .x names, the vast majority of 
+which have two lookups each. Since we are pretty sure the majority of .bit 
+names are malware-related, and having tons of lookups is consistent with how 
+DGAs work, we predict that the randomly generated .x, .eth, and .bitcoin 
+domains are not attempts to find C2 domains.
+
+ 
 
 
 
@@ -1208,7 +1347,13 @@ blocklisting every IP address in the system, blocking the proxies that resolve t
 the system entirely, because so little licit 
 content exists on those blockchains. We conclude that for a naming system to be truly more dangerous 
 than DNS, it must achieve widespread adoption as well as inexpensive transactions and high 
-ease-of-use, and no existing naming systems have yet achieved all three characteristics. 
+ease-of-use, and no existing naming systems have yet achieved all three 
+characteristics. 
+
+\section{Acknowledgments}
+
+The authors would like to thank Wes Hardaker, in whatever format he wants the 
+b-root project cited, for the b-root names.
 
 %\section{How big of a threat is blockchain DNS?}
 %The original goal of this paper was to say whether malware 
