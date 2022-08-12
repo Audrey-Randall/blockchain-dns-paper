@@ -1,4 +1,152 @@
-\section{Specific naming systems}
+\section{Overview of Blockchain Naming Systems}
+
+\begin{table}
+	\begin{tabular}{r l l}
+		\toprule
+		Name system & TLDs & Proxies \\
+		\midrule
+		Namecoin & .bit & BDNS \\
+		Emercoin & .lib, & PeerName,  \\
+		& .bazar, & friGate, \\
+		& .coin, & OpenNIC \\
+		& .emc & \\
+		Handshake & \emph{any string} & hns.to, \\
+		& & NextDNS, \\
+		& & HDNS.io,\\
+		& & BobWallet extension, \\
+		& & LinkFrame extension \\
+		ENS & .eth & eth.link, \\
+		& & eth.limo \\
+		Unstoppable & .crypto, & Brave browser, \\
+		& .blockchain, & Opera browser, \\
+		& .bitcoin, & Unstoppable browser, \\
+		& .coin, & Unstoppable extension, \\
+		& .nft, & Infura\\
+		& .wallet, & \\
+		& .888, & \\
+		& .dao, & \\
+		& .x, & \\
+		& .zil & \\
+		\bottomrule
+	\end{tabular}
+	\caption{Non-exhaustive selection of proxies, browsers, 
+		and extensions 
+		that can be used to access blockchain-based naming 
+		systems. \randall{maybe should have a citation for each 
+			of these}}
+	\label{tab:proxies_and_tlds}
+\end{table}
+
+In this section we present an overview of the largest blockchain-based naming 
+systems, to provide background on how such systems work in detail. We select 
+these systems based on their apparent popularity, as well as 
+prior reports and literature that indicate some of them have already been 
+abused by malware. These naming systems fall into two categories: systems built 
+on naming-specific blockchains, such as Namecoin and Emercoin, whose purpose is 
+primarily to store names and records, and systems built on general-purpose 
+blockchains, such as Ethereum, that are designed for purposes beyond naming 
+systems. These systems also fall into two ``generations:'' Namecoin and 
+Emercoin have existed since ~2012 \randall{find the actual times}, while 
+Handshake, the Ethereum Name Service (ENS), and Unstoppable Domains are more 
+recent inventions. 
+
+All of the blockchain-based naming systems we study differentiate their names 
+from DNS domains by inventing new alternate top level domains (alt-TLDs). A 
+summary of the alt-TLDs used by each naming system is presented in 
+Table~\ref{tab:proxies_and_tlds}. Handshake names are slightly different, since 
+the goal of the Handshake project is to replace the DNS root zone and make any 
+TLD available for purchase --- see Section~\ref{sec:handshake} for more details.
+
+Although each of these systems are blockchain-based naming 
+systems, they differ in several key ways, which are relevant to how defenders 
+must treat them when they are abused by malware authors. We now summarize each 
+system in more detail.
+
+\subsection{Naming-Specific Blockchains}
+
+We study three naming systems that are built on naming-specific blockchains: 
+Namecoin, Emercoin, and Handshake. Each naming system is built on its eponymous 
+blockchain. 
+
+\subsubsection{Namecoin and Emercoin}
+
+Namecoin and Emercoin are the oldest blockchain-based naming systems. Both were 
+intended as additions to traditional DNS: users registered domains that 
+resolved to IP addresses using records very similar to DNS records. 
+Unfortunately, Namecoin and Emercoin have been subject to a large amount of 
+abuse. 
+
+
+\subsubsection{Handshake}
+\label{sec:handshake}
+\begin{table}
+	\begin{tabular}{lr}
+		\toprule
+		Record & Names with Record \\
+		\midrule
+		Default NS and GLUE4 records & 102,386 \\
+		\hspace*{0.2in} No A records & 102,285\\
+		\hspace*{0.2in} A 44.235.163.135 & 94 \\
+		\hspace*{0.2in} A 52.43.158.89 & 4 \\
+		\hspace*{0.2in} A 144.91.114.245 & 2 \\
+		\hspace*{0.2in} A 1.1.1.1 & 1 \\
+		Invalid name & 98,068 \\
+		No record (null) & 845 \\
+		TXT record & 138 \\
+		\hspace*{0.2in} ``hello fx-wallet'' & 110 \\
+		\hspace*{0.2in} Other & 28 \\
+		Non-default NS record & 32 \\
+		Non-default GLUE4 record & 11 \\
+		Distributed storage address & 7 \\
+		\midrule
+		Total unique names & 201,458 \\
+		Total records & 201,487 \\
+		\bottomrule
+	\end{tabular}
+	\caption{Record types in the Handshake namespace.}
+	\label{tab:handshake_records}
+\end{table}
+
+Handshake is a new blockchain-based system that aims to 
+replace the root DNS 
+zone. As such, it offers its users the ability to purchase 
+nearly any string to 
+use as a TLD. Rather than selling second-level domains 
+itself, the Handshake ecosystem purports to allow its users 
+to act as registrars who can sell their own domains. 
+Handshake's stated goal is not to replace the traditional DNS 
+system: Handshake records are designed to store the domains 
+and IP addresses of traditional authoritative nameservers, 
+rather than to store A, AAAA, or CNAME records. However, we note that nothing 
+restricts malware authors from recording the IP addresses of C2 servers as NS 
+records, or running an authoritative nameserver and a C2 server on the same 
+machine. Handshake also allows users to store TXT records, which can 
+contain the addresses for decentralized web hosting systems 
+like Skynet or IPFS. Malware users could potentially use 
+Handshake as a naming system to find content stored in 
+content-addressed distributed storage systems. Additionally, Handshake 
+advertises themselves as ``the only naming blockchain with a lightweight 
+recursive DNS resolver, which you can easily embed into 
+browsers, apps, and devices''~\cite{namebase_access_handshake}. 
+This lightweight resolver may be attractive to malware authors because it is 
+small enough to use as part of a malware payload.
+
+\randall{Summarize the .music debate and cite it somewhere.}
+
+We collected a sample of approximately 201,000 Handshake names and analyzed the 
+records assocated with them. Table~\ref{tab:handshake_records} 
+summarizes our findings. At the moment, Handshake names appear to be 
+overwhelmingly used as speculative assets. Only 0.14\% of names in our sample 
+had records that led to either IP addresses or DS addresses, assuming the 
+non-default nameserver and glue records do lead to IP addresses or DS 
+addresses. Nearly half of registered Handshake domains in our sample cannot be 
+resolved by the HNS client, since they contain illegal characters like emojis 
+or are solely composed of numbers: these names are nevertheless allowed to be 
+minted.
+
+Because these names seem to have very few records and we can't look them all 
+up, we don't pay Handshake much attention from here on out.
+
 \subsection{General Purpose Naming Systems}
 
 Interestingly, systems like ENS and Unstoppable Domains are not advertised as 
@@ -30,7 +178,7 @@ Ethereum Name Service (ENS) and Unstoppable Domains.
 \begin{table}
 	\begin{tabular}{lrr}
 		\toprule
-		Resolver Name & Txns that Set this Resolver & Address \\
+		Resolver Name & Txns Setting Resolver & Address \\
 		\midrule 
 		Public Resolver 2 & 33,304 & \texttt{0x4976fb...} \\
 		Public Resolver 1 & 2,736 & \texttt{0xDaaF96...} \\
@@ -211,71 +359,3 @@ be a reliable
 intervention, because malware authors can evade this tactic by simply using 
 self-hosted wallets. 
 
-\subsection{Naming-Specific Blockchains}
-\subsubsection{Namecoin and Emercoin}
-\subsubsection{Handshake}
-\begin{table}
-	\begin{tabular}{lr}
-		\toprule
-		Record & Names with Record \\
-		\midrule
-		Default NS and GLUE4 records & 102,386 \\
-		\hspace*{0.2in} No A records & 102,285\\
-		\hspace*{0.2in} A 44.235.163.135 & 94 \\
-		\hspace*{0.2in} A 52.43.158.89 & 4 \\
-		\hspace*{0.2in} A 144.91.114.245 & 2 \\
-		\hspace*{0.2in} A 1.1.1.1 & 1 \\
-		Invalid name & 98,068 \\
-		No record (null) & 845 \\
-		TXT record & 138 \\
-		\hspace*{0.2in} ``hello fx-wallet'' & 110 \\
-		\hspace*{0.2in} Other & 28 \\
-		Non-default NS record & 32 \\
-		Non-default GLUE4 record & 11 \\
-		Distributed storage address & 7 \\
-		\midrule
-		Total unique names & 201,458 \\
-		Total records & 201,487 \\
-		\bottomrule
-	\end{tabular}
-	\caption{Record types in the Handshake namespace.}
-	\label{tab:handshake_records}
-\end{table}
-
-Handshake is a new blockchain-based system that aims to 
-replace the root DNS 
-zone. As such, it offers its users the ability to purchase 
-nearly any string to 
-use as a TLD. Rather than selling second-level domains 
-itself, the Handshake ecosystem purports to allow its users 
-to act as registrars who can sell their own domains. 
-Handshake's stated goal is not to replace the traditional DNS 
-system: Handshake records are designed to store the domains 
-and IP addresses of traditional authoritative nameservers, 
-rather than to store A, AAAA, or CNAME records. However, we note that nothing 
-restricts malware authors from recording the IP addresses of C2 servers as NS 
-records, or running an authoritative nameserver and a C2 server on the same 
-machine. Handshake also allows users to store TXT records, which can 
-contain the addresses for decentralized web hosting systems 
-like Skynet or IPFS. Malware users could potentially use 
-Handshake as a naming system to find content stored in 
-content-addressed distributed storage systems. Additionally, Handshake 
-advertises themselves as ``the only naming blockchain with a lightweight 
-recursive DNS resolver, which you can easily embed into 
-browsers, apps, and devices''~\cite{namebase_access_handshake}. 
-This lightweight resolver may be attractive to malware authors because it is 
-small enough to use as part of a malware payload.
-
-We collected a sample of approximately 201,000 Handshake names and analyzed the 
-records assocated with them. Table~\ref{tab:handshake_records} 
-summarizes our findings. At the moment, Handshake names appear to be 
-overwhelmingly used as speculative assets. Only 0.14\% of names in our sample 
-had records that led to either IP addresses or DS addresses, assuming the 
-non-default nameserver and glue records do lead to IP addresses or DS 
-addresses. Nearly half of registered Handshake domains in our sample cannot be 
-resolved by the HNS client, since they contain illegal characters like emojis 
-or are solely composed of numbers: these names are nevertheless allowed to be 
-minted.
-
-Because these names seem to have very few records and we can't look them all 
-up, we don't pay Handshake much attention from here on out.

@@ -60,44 +60,8 @@ discuss in more detail.
 
 \subsection{Accessing blockchains using proxies}
 
-\begin{table}
-	\begin{tabular}{r l l}
-		\toprule
-		Name system & TLDs & Proxies \\
-		\midrule
-		Namecoin & .bit & BDNS \\
-		Emercoin & .lib, & PeerName,  \\
-		& .bazar, & friGate, \\
-		& .coin, & OpenNIC \\
-		& .emc & \\
-		Handshake & \emph{any string} & hns.to, \\
-		& & NextDNS, \\
-		& & HDNS.io,\\
-		& & BobWallet extension, \\
-		& & LinkFrame extension \\
-		ENS & .eth & eth.link, \\
-		& & eth.limo \\
-		Unstoppable & .crypto, & Brave browser, \\
-		& .blockchain, & Opera browser, \\
-		& .bitcoin, & Unstoppable browser, \\
-		& .coin, & Unstoppable extension, \\
-		& .nft, & Infura\\
-		& .wallet, & \\
-		& .888, & \\
-		& .dao, & \\
-		& .x, & \\
-		& .zil & \\
-		\bottomrule
-	\end{tabular}
-	\caption{Non-exhaustive selection of proxies, browsers, 
-		and extensions 
-		that can be used to access blockchain-based naming 
-		systems. \randall{maybe should have a citation for each 
-			of these}}
-	\label{tab:proxies_and_tlds}
-\end{table}
-
-To resolve a blockchain-based name by using a proxy, users have several 
+To resolve a blockchain-based name to a website by using a proxy, users have 
+several 
 choices. Most large 
 browsers, such as Safari, Chrome, and Firefox, do not support any 
 blockchain 
@@ -108,8 +72,7 @@ use
 DoH to send a resolution request to a server that can resolve the name. We 
 note that such a server does not need to make a lookup to the chain every time 
 it receives a request: it may cache names or keep track of its own database 
-of 
-names, which would simplify its implementation and speed up lookups 
+of names, which would simplify its implementation and speed up lookups 
 significantly. 
 
 Some browsers, such as Brave and Opera, claim to resolve certain naming 
@@ -172,6 +135,8 @@ defender's point of view. However, while proxies simplify the process of
 connecting to a blockchain, they are not strictly necessary, which is bad 
 news 
 for defenders.
+
+\randall{Put a summary of the BDNS takedown here somewhere}
 
 
 \subsection{The emergence of light clients}
