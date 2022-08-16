@@ -51,7 +51,7 @@ Handshake, the Ethereum Name Service (ENS), and Unstoppable Domains are more
 recent inventions. 
 
 All of the blockchain-based naming systems we study differentiate their names 
-from DNS domains by inventing new alternate top level domains (alt-TLDs). A 
+from DNS domains by inventing alternate top level domains (alt-TLDs). A 
 summary of the alt-TLDs used by each naming system is presented in 
 Table~\ref{tab:proxies_and_tlds}. Handshake names are slightly different, since 
 the goal of the Handshake project is to replace the DNS root zone and make any 
@@ -74,7 +74,20 @@ Namecoin and Emercoin are the oldest blockchain-based naming systems. Both were
 intended as additions to traditional DNS: users registered domains that 
 resolved to IP addresses using records very similar to DNS records. 
 Unfortunately, Namecoin and Emercoin have been subject to a large amount of 
-abuse. 
+abuse. Kalodner et al. found that only 28 of the 120,000 domains registered in 
+Namecoin in 2015 had meaningful web content~\cite{kalodner_namecoin_2015}. 
+Casino et al. collected all of the IP addresses that names in Emercoin and 
+Namecoin resolved to, and submitted them to threat intelligence services 
+including VirusTotal, Hybrid Analysis, Abuse.ch, and Pydnsbl (an aggregator of 
+blocklists). They found that over 50\% of the IPs in Namecoin and Emercoin 
+records had been flagged as malicious by at least one threat intelligence 
+service~\cite{casino_unearthing_2021}. Furthermore, Casino et al. used a 
+``poisoning'' approach to find IP addresses associated with malicious IPs, 
+either because they were stored in the same wallet, the name resolved to them, 
+or the same email was recorded in their records. This ``poisoning'' approach 
+revealed that the vast majority of IP addresses in Namecoin and Emercoin 
+records are 
+connected in some way to malicious IPs~\cite{casino_unearthing_2021}.
 
 
 \subsubsection{Handshake}
@@ -114,10 +127,9 @@ nearly any string to
 use as a TLD. Rather than selling second-level domains 
 itself, the Handshake ecosystem purports to allow its users 
 to act as registrars who can sell their own domains. 
-Handshake's stated goal is not to replace the traditional DNS 
-system: Handshake records are designed to store the domains 
-and IP addresses of traditional authoritative nameservers, 
-rather than to store A, AAAA, or CNAME records. However, we note that nothing 
+Handshake records are designed to store the NS records of traditional 
+authoritative nameservers, rather than to replace DNS A, AAAA, or similar 
+records. However, we note that nothing 
 restricts malware authors from recording the IP addresses of C2 servers as NS 
 records, or running an authoritative nameserver and a C2 server on the same 
 machine. Handshake also allows users to store TXT records, which can 
@@ -133,8 +145,14 @@ small enough to use as part of a malware payload.
 
 \randall{Summarize the .music debate and cite it somewhere.}
 
-We collected a sample of approximately 201,000 Handshake names and analyzed the 
-records assocated with them. Table~\ref{tab:handshake_records} 
+We collected a sample of approximately 201,000 recent Handshake names by 
+scraping a Handshake block explorer.\footnote{https://e.hnsfans.com/names} We 
+attempted to scrape these names 
+directly from the Handshake blockchain, but were unsuccessful because the RPC 
+provided by the Handshake client to interact with the Handshake node is no 
+longer functional: so many names are recorded in the system that the RPC cannot 
+return them to the user anymore~\cite{hns_rpc_too_big}. 
+Table~\ref{tab:handshake_records} 
 summarizes our findings. At the moment, Handshake names appear to be 
 overwhelmingly used as speculative assets. Only 0.14\% of names in our sample 
 had records that led to either IP addresses or DS addresses, assuming the 
@@ -144,19 +162,49 @@ resolved by the HNS client, since they contain illegal characters like emojis
 or are solely composed of numbers: these names are nevertheless allowed to be 
 minted.
 
-Because these names seem to have very few records and we can't look them all 
-up, we don't pay Handshake much attention from here on out.
+\randall{Because these names seem to have very few records and we can't look 
+them all 
+up, we don't pay Handshake much attention from here on out.}
 
-\subsection{General Purpose Naming Systems}
+\subsection{Naming Systems on General Purpose Blockchains}
 
-Interestingly, systems like ENS and Unstoppable Domains are not advertised as 
-drop-in replacements for DNS. Rather than being intended specifically to 
-resolve to IP addresses, these naming systems often translate a human-readable 
-name to a \emph{wallet address} instead. While users can still store IP 
-addresses, very few choose to do so. \randall{need numbers here or later in 
-	specific chain section}. Some users store the addresses for distributed 
-	storage 
-systems, but the majority of configured records store wallet addresses. We also 
+A new generation of naming systems based on the Ethereum blockchain have 
+recently arrived on the scene. The Ethereum Name Service (ENS) was the first 
+\randall{maybe}, followed by Unstoppable Domains. These naming systems are 
+possible because of Ethereum's innovation in the blockchain space: \emph{smart 
+contracts.} Smart contracts are, in essence, code that is embedded into the 
+Ethereum blockchain. Any full node that runs Ethereum can execute any smart 
+contract. Each contract is identified by a hexadecimal address, and makes its 
+functions available through its ABI. Thus, asking a smart contract to execute 
+its function is similar to making an RPC call, except that the user does not 
+know or care which physical machine actually executes the code. 
+
+While smart contracts' functionality has some limitations, they can 
+be used to implement key-value stores, which means they can act as naming 
+systems. For example, in a simplified system, a user might wish to set the name 
+``foo.crypto'' to resolve to the IP address 1.2.3.4. The user would create an 
+Ethereum transaction that asks the smart contract that 
+controls the key-value store to set a record for ``foo.crypto'' to ``1.2.3.4.'' 
+This transaction is then broadcast to the Ethereum network, and every Ethereum 
+node that receives it updates its own copy of the key-value store to include 
+the new record. Reading from the key-value store works similarly to writing to 
+it: any Ethereum node can return a correct response. %Implication: taking down 
+%the host of a name on Ethereum is not possible without taking down every 
+%Ethereum node. In contrast to IPFS, where only one machine stores the content 
+%you're looking for, so taking it down might be a lot easier.
+
+Interestingly, systems like ENS and Unstoppable Domains are structured like 
+DNS, but they are not necessarily being used as DNS replacements. Both ENS and 
+Unstoppable Domains use certain smart contracts as registries, and ENS even 
+uses other contracts as resolvers and registrars. However, users are primarily 
+using these systems to map human-readable names to \emph{wallet addresses} 
+instead. While users can still store IP addresses or traditional domains, very 
+few choose to do so.  
+%Implication: malware users that store IP addresses, domains, or websites stand 
+%out.
+
+Some users store the addresses for distributed 	storage systems, but the 
+majority of configured records store wallet addresses. We also 
 note that a high percentage of names on ENS and Unstoppable Domains are not 
 configured to have records at all. There may be a few reasons why: first, names 
 resolve to the wallet address that owns them by default \randall{true on 
