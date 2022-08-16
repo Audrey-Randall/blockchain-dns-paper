@@ -1,4 +1,5 @@
 \section{Accessing records}
+\label{sec:accessing_records}
 
 \begin{figure*}[t]
 	\centering
@@ -134,18 +135,19 @@ distributed naming ecosystem to a state similar to the DNS ecosystem, from a
 defender's point of view. 
 
 \subsubsection{Case study --- BDNS takedown}
-One example of an attempted proxy takedown is already known: 
-the proxy known as ``Blockchain-DNS.info'' or BDNS. BDNS 
-reported on their website that in April 2018, 
-seven of their domain names were ``un-delegated'' and one of 
-their API servers was shut down without 
-warning~\cite{blockchain-dns-info-wayback}. The service then 
-received a message from Spamhaus stating that several of 
+Defenders have already attempted to take down a proxy for 
+accessing blockchain domains: ``Blockchain-DNS.info,'' also 
+known as BDNS. BDNS reported on their website that in April 
+2018, seven of their domain names were ``un-delegated'' and 
+one of their API servers was shut down without 
+warning~\cite{blockchain-dns-info-wayback}. The service 
+received a message from Spamhaus shortly after noticing the 
+takedown, stating that several of 
 BDNS's domains had been added to Spamhaus's blocklist. BDNS 
 claimed that their browser extensions continued to resolve 
 blockchain names using other endpoints, and directed users to 
 a list of endpoints that were still 
-working~\cite{github_bdns_wayback}. Finally, BDNS stated that 
+working~\cite{github_bdns_wayback}. BDNS also stated that 
 they had moved some infrastructure to a friendlier hosting 
 provider, PRQ, which states on its website that ``If 
 [content] is legal in Sweden, we will host it, and will keep 
@@ -160,23 +162,25 @@ taking down some domains and a hosting server entirely.
 The former tactic appeared to work well in locations where 
 ISPs use Spamhaus's blocklist: BDNS stated that their 
 proxy ``may be still unreachable in those parts of the 
-world.'' However, the domain takedown was reportedly only 
-partially effective. We conclude that care must be taken to 
-enumerate all of the proxy's endpoints and shut them down 
-simultaneously, since the proxy was reportedly still able to 
-resolve blockchain names using the unaffected endpoints.  
+world.'' However, the domain takedown appeared to be only 
+partially effective, since the proxy could still resolve 
+blockchain names using unaffected endpoints. We conclude that 
+care must be taken to enumerate all of a proxy's endpoints 
+and shut them down simultaneously.  
 
 At the time of writing, all of the endpoints listed in BDNS's 
 Github repository~\cite{github_bdns_wayback} are either 
-failing to resolve or failing to 
-load a website, but it is unclear whether defenders performed 
-a more successful 
-takedown or the service shut down for other 
-reasons. One endpoint, \texttt{bdns.io}, has 
+failing to resolve or resolving but failing to 
+load content. However, it is unclear whether defenders 
+performed a more successful takedown or the service shut down 
+for other reasons. One endpoint, \texttt{bdns.io}, has 
 apparently been sinkholed by ShadowServer, since its NS 
 records now point to variants of the name 
 sinkhole.shadowserver.org.\footnote{sinkhole-0[0-4].shadowserver.org
- and sinkhole-[a-b].shadowserver.org.}
+and sinkhole-[a-b].shadowserver.org.} We were unable to 
+determine if ShadowServer was involved in the original 
+takedown effort or if it sinkholed this domain at a later 
+date.
 
 We conclude that proxy takedowns are a viable method for 
 defenders to intervene in the blockchain DNS ecosystem. 

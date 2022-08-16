@@ -1,20 +1,12 @@
 \section{Modifying records}
+\label{sec:modifying_records}
 
 Malware authors must not only ensure their clients can access the blockchain 
 naming system, but 
 also ensure they can modify the addresses stored in the records when they 
-become unavailable.
-
-\subsection{Name-specific chains vs. general-purpose chains}
-
-Name-specific chains, such as Namecoin, Emercoin, and 
-Handshake, tend to have fewer participants, less popularity, 
-and lower transaction fees. General-purpose chains, such as 
-Ethereum, have naming systems built on top of the underlying blockchain. 
-Examples of these naming systems include ENS, Unstoppable Domains, and 
-Handshake. These chains have higher transaction or gas fees, which users 
-must pay whenever they modify a domain's record, and the names tend to be much 
-more expensive to purchase. 
+become unavailable. The challenges of modifying records 
+differ depending on whether the underlying blockchain is 
+naming-specific or general-purpose.
 
 \subsection{Challenges on general-purpose chains}
 \randall{Say somewhere that reads don't cost anything, only writes}
@@ -69,13 +61,16 @@ impractical to pre-register every domain that a DGA can generate to prevent
 malware authors from 
 registering them themselves. 
 
-\randall{Does it take longer to propagate modifications through a blockchain 
-	than through DNS? Is this a challenge for malware bc it introduces 
-	downtime? 
-	Someone said it could take half an hour for a txn to be confirmed on a 
-	blockchain.}
+%\randall{Does it take longer to propagate modifications 
+%through a blockchain 
+%	than through DNS? Is this a challenge for malware bc it 
+%introduces 
+%	downtime? 
+%	Someone said it could take half an hour for a txn to be 
+%confirmed on a 
+%	blockchain.}
 
-\section{Challenges on naming-specific chains}
+\subsection{Challenges on naming-specific chains}
 %\begin{itemize}
 %	\item High txn cost is less of an issue: defenders might 
 %	be able to register DGA domains? 
