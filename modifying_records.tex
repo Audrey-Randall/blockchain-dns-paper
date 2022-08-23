@@ -17,7 +17,7 @@ quickly, to replace
 blocklisted domains and IPs or prevent defenders from seizing 
 them~\cite{nadji_beheading_2013}. 
 Malware authors commonly use two strategies to cycle through records: fast 
-flux and DGAs. Fast flux 
+flux and AGDs (Algorithmically Generated Domains). Fast flux 
 is the practice of storing multiple records with low TTLs at a domain, and 
 changing the records as 
 soon as the TTL expires. This allows a domain to resolve to a different group 
@@ -30,12 +30,19 @@ number of machines defenders must seize or neutralize, because if any of the
 compromised machines 
 are still routing traffic, the system still works. However, fast flux is 
 still vulnerable to domain 
-takedowns. DGAs (Domain Generation Algorithms) address this weakness by cycling 
-through domains as 
-well as IP addresses. By randomly generating a large number of domains and 
-only using a few of them 
-to host C2 servers, malware authors can evade blocklists and  
-takedowns~\cite{antonakakis_throw-away_2012}.
+takedowns. Malware authors address this weakness by cycling through domains as 
+well as IP addresses. Each infected host knows how to generate a large number 
+of potential domains, usually using the time or date as an input, but only a 
+few of these domains will be registered at a time. Because the remainder are 
+not registered, defenders cannot take them down preemptively. If a registered 
+domain is taken down, malware authors simply register a new one, and the 
+infected hosts all try to resolve each AGD in turn until they discover the new 
+one. Defenders must 
+register all of the domains that the infected hosts can generate to evade this 
+threat entirely~\cite{antonakakis_throw-away_2012}. However, this strategy is 
+often visible to a defender with a view into which DNS requests are made on a 
+network, because infected hosts must try to resolve a large number of 
+nonexistent domains.
 
 Generally speaking, DNS domains are cheaper, easier to modify, and 
 easier to replace than IP 

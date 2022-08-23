@@ -24,16 +24,42 @@ from one of the root DNS resolvers, B-root.
 
 Some queries for domains with alt-TLDs at B-root were unrelated to the 
 blockchain systems they share alt-TLDs with. A prior study on root DNS queries 
-found that some networks use non-ICANN TLDs internally under the assumption 
+found that some networks use non-ICANN TLDs internally, under the assumption 
 that queries for those names will never reach external DNS resolvers. However, 
 these queries frequently leak to external networks~\cite{chen_wpad_2016}. We 
-observed that some 
-internal networks use alt-TLDs that overlap with the blockchain naming systems' 
-alt-TLDs. For example, we observed numerous queries for subdomains of 
+observed that some internal networks use alt-TLDs that overlap with the 
+blockchain naming systems' alt-TLDs. For example, we observed numerous queries 
+for randomly generated subdomains of 
 \texttt{kroger.com.btc}, \texttt{nordic.x}, \texttt{sata.x}, and others. These 
-domains are not registered in the Unstoppable Domains namespace. We removed 
-names from the B-root sample if they were not registered in their respective 
-blockchain-based naming system.
+domains are not registered in any blockchain-based naming system. 
+
+\subsubsection{Irrelevant ENS and Unstoppable Domains queries}
+
+We observed numerous names of the form <random\_string>.alt-TLD, where the 
+alt-TLD in question is used by ENS or Unstoppable Domains. These names 
+might have been indicative of malware using DGAs to create names for its C2 
+servers, because malware often sends queries for unregistered domains until it 
+discovers the correct domain for contacting its C2 server. However, on further 
+inspection, we predict 
+that these names are not related to malware for several 
+reasons. First, we observe that each randomly generated name is only requested 
+twice, and the requests originate from the same AS every time: one comes from 
+AS 15169 (Google) and the other comes from AS 394353 (B-root's own AS). We 
+suspect that this indicates one or two misbehaving machines, rather than a 
+malware campaign. Second, if the names were malware-related, periods 
+of time would exist when a particular name was registered, reachable, and used 
+to contact the C2 server. This name would presumably receive a high volume of 
+requests for that period of time, and no apparently randomly generated name in 
+our two-week sample ever received more than 22 requests (uk3hr2y7g.eth). 
+Finally, we compare these names to randomly generated names in the Emercoin and 
+Namecoin ecosystems, which are known to host large amounts of malware. Examples 
+of these names are given in Table~\ref{tab:namecoin_emercoin}. These randomly 
+generated names, such as those belonging to BazarLoader and Necurs, do fit our 
+predictions for how malware-related names behave: they receive far more 
+queries. We therefore removed potential ENS and Unstoppable Domains names from 
+the B-root sample if they were not registered in their respective naming system.
+
+\subsubsection{WPAD queries}
 
 We also discovered that domains used in the WPAD discovery protocol, a protocol 
 used for local network participants to discover DNS proxies, used alt-TLDs that 
@@ -41,18 +67,8 @@ overlapped with blockchain DNS. WPAD DNS lookups take the form of
 \texttt{wpad.company-name.alt-TLD}~\cite{chen_wpad_2016}. If we observe a 
 request of that form, we consider it to be strong evidence that other requests 
 to subdomains of \texttt{company-name.alt-TLD} have escaped from an internal 
-network. We remove these requests from our sample as well.
+network. We remove these requests from our sample as well. 
 
-After removing names that are not registered in Unstoppable Domains, we 
-observed no more than six names with each Unstoppable TLD requested from B-root 
-on either of our sample days. Either no one is using Unstoppable to look up 
-domains (consistent with the types of records they store), or Unstoppable has 
-modest adoption but most people are using the extensions properly.
-
-ENS names leaked slightly more frequently: we saw 186 names in the October 19th
-sample and 313 in the April 15th sample. 
-
-But what about the unregistered domains?
 
 \subsection{Queries for Namecoin and Emercoin Names}
 
@@ -86,6 +102,7 @@ But what about the unregistered domains?
 		&	acegilbcggio.bazar	&	934	\\
 		Trojan RTM	&	stat-counter-[0-9]-[0-9].bit	&	20996	\\
 		Necurs	&	jfbbrj3bbbd.bit	&	3009	\\
+		& qcmbartuop.bit & 2632 \\
 		\bottomrule
 	\end{tabular}
 	\caption{Examples of malicious Namecoin and Emercoin domains in the October 
@@ -110,7 +127,7 @@ But what about the unregistered domains?
 	\label{fig:namecoin_and_emercoin_counts}
 \end{figure}
 
- We examined the names from each sample 
+We examined the names from each sample 
 and found ample evidence of names that are likely to be used by malware. We 
 manually inspected 
 the Emercoin and Namecoin names with the most queries, and found that the vast 
@@ -139,6 +156,16 @@ behavior~\cite{patsakis_unravelling_2020, casino_unearthing_2021}.
 %``yahoo.'' The string ``netflix'' in particular was popular. \randall{All of 
 %these were .kred and 
 	%.luxe and stuff, not Namecoin/Emercoin.
+	
+
+After removing names that are not registered in Unstoppable Domains, we 
+observed no more than six names with each Unstoppable TLD requested from B-root 
+on either of our sample days. Either no one is using Unstoppable to look up 
+domains (consistent with the types of records they store), or Unstoppable has 
+modest adoption but most people are using the extensions properly.
+
+ENS names leaked slightly more frequently: we saw 186 names in the October 19th
+sample and 313 in the April 15th sample.
 	
 \subsection{.x}
 
