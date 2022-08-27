@@ -140,20 +140,24 @@ OpenNIC is a decentralized proxy service that
 resolves names from several alternative naming systems, 
 including Namecoin and Emercoin~\cite{opennic}. OpenNIC's 
 resolvers are run by a small community of 
-volunteers~\cite{opennic_servers}. In 2019, this community 
-voted of their own volition to remove support for Namecoin's 
-\texttt{.bit} alt-TLD, because providers were beginning to 
-block OpenNIC resolvers that were used by 
-malware to contact Namecoin 
+volunteers~\cite{opennic_servers}. In June 2019, this 
+community voted of their own volition to remove support for 
+Namecoin's \texttt{.bit} alt-TLD, because providers were 
+beginning to block OpenNIC resolvers that were used by 
+malware to resolve Namecoin 
 names~\cite{opennic_namecoin_vote}.
 
 OpenNIC's decision to cease supporting Namecoin was not the 
 result of a direct intervention by defenders, but it still 
 yields an important lesson. Even a decentralized proxy 
-service may be composed of few enough 
-individuals that it is possible to  
-cajole or compel them to stop resolving names used by 
-malware. 
+service may be composed of few enough individuals that it is 
+possible to cajole or compel them to stop resolving names 
+used by malware. Furthermore, OpenNIC's community held this 
+vote in response to pressure from Spamhaus, Malwarebytes, and 
+other providers, who began blocklisting OpenNIC resolver 
+domains: even if a proxy's community cannot be contacted 
+directly, it is still possible to pressure them to cease 
+resolving names used by malware.
 
 \subsubsection{Case study --- BDNS takedown}
 
@@ -177,15 +181,16 @@ it up regardless of any pressure to take it
 down''~\cite{prq}. 
 
 This takedown effort provides several lessons for defenders. 
-First, it is possible to target a proxy when intervening with 
-blockchain names. Defenders apparently tried two tactics: 
+First, defenders must take care when choosing a takedown 
+strategy for a proxy. In this case, defenders tried two 
+tactics: 
 adding the proxy's endpoints to a widely used blocklist and 
 taking down some domains and a hosting server entirely. 
 The former tactic appeared to work well in locations where 
 ISPs use Spamhaus's blocklist: BDNS stated that their 
 proxy ``may be still unreachable in those parts of the 
 world.'' However, the domain takedown appeared to be only 
-partially effective, since the proxy could still resolve 
+partially effective, since BDNS could still resolve 
 blockchain names using unaffected endpoints. We conclude that 
 care must be taken to enumerate all of a proxy's endpoints 
 and shut them down simultaneously.  
