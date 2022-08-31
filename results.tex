@@ -1,65 +1,215 @@
 \section{Measurements of Name Resolution Queries}
 \label{sec:b-root}
 
-Because blockchain names require alternate resolution systems, we predicted 
-that many of them would ``leak'' into the DNS when misconfigured machines 
-attempt to resolve them as ordinary DNS domains. An observer might therefore be 
-able to see which names are popular by measuring which blockchain names are 
-requested through ordinary DNS requests. We took two 24-hour samples of names 
-with Namecoin and Emercoin's alternate TLDs that appeared in 
-queries to a root DNS server. One of these samples was from October 19, 2021, 
-and the other was from April 15, 2022.
+\begin{table}
+	% These numbers have been cut in half to account for responses
+	\begin{tabular}{lrrr}
+		\toprule
+		Malware & Domain & Lookups & Source\\
+		\midrule
+		Gandcrab	&	malwarehunterteam.bit	&	348	& 
+		\cite{trellix_gandcrab} \\
+		&	politiaromana.bit	&	341	& \cite{trellix_gandcrab} \\
+		&	gdcb.bit	&	316	& \cite{trellix_gandcrab} \\
+		&	zonealarm.bit	&	628	& \cite{acronis_gandcrab} \\
+		&	ransomware.bit	&	1,039 & \cite{acronis_gandcrab} \\
+%		&	nomoreransom.coin	&	1121	\\
+		CHESSYLITE	&	leomoon.bit	&	935	& \cite{mandiant_chessylite} \\
+		&	lookstat.bit	&	710	& \cite{mandiant_chessylite} \\
+		&	sysmonitor.bit	&	519	& \cite{mandiant_chessylite} \\
+		&	volstat.bit	&	455	& \cite{mandiant_chessylite} \\
+		&	xoonday.bit	&	573	& \cite{mandiant_chessylite} \\
+		Dofoil	&	vrubl.bit	&	988	& \cite{dofoil_2018} \\
+		&	levashov.bit	&	1,059 & \cite{dofoil_2018} \\
+		&	vinik.bit	&	6,265 & \cite{dofoil_2018} \\
+		KPOT Stealer	&	kpotuvorot10.bit	&	1,951 & \cite{kpot_2021}\\
+		&	star-fox.bit	&	351	 & \cite{joesandbox} \\
+		Team9 Loader	&	bestgame.bazar	&	942	& \cite{team9_fox-it} \\
+		&	forgame.bazar	&	865	& \cite{team9_fox-it} \\
+		&	zirabuo.bazar	&	51	& \cite{team9_fox-it} \\
+		&	tallcareful.bazar	&	146 & \cite{team9_fox-it} 	\\
+		&	coastdeny.bazar	&	139	& \cite{team9_fox-it} \\
+		BazarLoader	&	acegikbcggin.bazar	&	546	& \cite{baza_proofpoint} \\
+		&	acegilbcggio.bazar	&	467	& \cite{baza_proofpoint} \\
+		Trojan RTM	&	stat-counter-[0-9]-[0-9].bit & 10,498 & 
+		\cite{sudonull_trojanrtm} \\
+		Necurs	&	jfbbrj3bbbd.bit	&	1,505 & \cite{threatcrowd_necurs}\\
+		& qcmbartuop.bit & 1,316 & \cite{dgas_of_necurs} \\
+		\bottomrule
+	\end{tabular}
+	\caption{Examples of malicious Namecoin and Emercoin domains in the October 
+		sample of B-root 
+		queries.}
+	\label{tab:namecoin_emercoin}
+\end{table}
 
-Discovering which names users are resolving in blockchain-based 
-naming systems is challenging: reads within a 
-blockchain system are not transactions, so they do not leave any evidence 
-behind. We hypothesized that some attempts to resolve blockchain names 
-would be misconfigured and might leak into regular DNS. To test this 
-hypothesis, we obtained samples of the queries for domains with BNS alt-TLDs 
-from one of the root DNS resolvers, B-root.
+Our findings up until now have indicated that
+malware still heavily utilizes Emercoin and Namecoin, but has 
+not made the jump to ENS and Unstoppable Domains. However, to fully test this 
+assumption, we needed to check not only which domains were \emph{registered} in 
+each system, but also which domains were being \emph{used}. 
+This is challenging because name resolutions are not 
+transactions: they are read-only operations that do not leave 
+a record in the blockchain. We cannot directly measure 
+usage of blockchain names, but we observed that a side 
+channel might exist to estimate name usage: ``leakage'' to the DNS. We 
+predicted that since blockchain names require configuring alternate resolution 
+systems, some might ``leak'' into the DNS when misconfigured machines 
+attempt to resolve them as ordinary DNS domains. These leaked 
+names would be visible at the root DNS servers, but would not 
+be forwarded to any other DNS servers, because the roots 
+would respond that the alt-TLDs do not exist. An observer who could see which 
+names were requested at a DNS root server with alt-TLDs corresponding to 
+blockchain naming systems could get a sense for which names are in use.
 
-\subsection{Removing irrelevant queries}
+We therefore took two samples of the names that were 
+requested at B-root over the course of several days. The first sample consisted 
+of names and how many requests were made for each on October 19, 2021. 
+The second sample consisted of names, numbers of requests, and the ASes the 
+requests were made from. It spanned two weeks in April 2022, from April 16 to 
+April 30. 
 
-Some queries for domains with alt-TLDs at B-root were unrelated to the 
-blockchain systems they share alt-TLDs with. A prior study on root DNS queries 
+%
+Another advantage of using B-root as a vantage point was 
+that it let us observe requests for \emph{unregistered} AGDs that 
+might indicate the presence of malware. DGAs work by generating a vast number 
+of names, but only a few are ever registered and functional at any given time. 
+These unregistered names do not, of course, appear in our samples of the 
+registered names in each blockchain naming system. An infected host determines 
+which names are registered by simply attempting to resolve them. If an infected 
+host's queries were leaking into the DNS, we theorized that these queries would 
+be very obvious, because the infected host would always receive NXDOMAIN 
+responses from the root. These responses would cause the infected host to 
+assume it has not 
+found the correct C2 name for today and keep trying new 
+names. The flood of nonexistent names with blockchain-based 
+alt-TLDs would be visible when examining queries arriving at B-root. 
+
+\subsection{Frequently Accessed Names}
+
+We first investigated how many days each name was requested on, and found that 
+the vast majority of names are only requested once, on a single day. There were 
+two notable exceptions: a small group (67) of \texttt{.bit} names that received 
+a high volume of requests on every day of the sample, and a large group 
+(~39,000) of unique \texttt{.bazar} names that 
+were each requested on most or all days of the sample.
+
+We analyzed the group of .bit names that were requested on all 14 days of our 
+sample and had more total requests than any name requested on fewer than 14 
+days. 66 names fit this criteria. We submitted them to VirusTotal and found 
+that only 18 names were not labeled malicious by any engine, while 48 were 
+labeled malicious by at least one. 
+
+The \texttt{.bazar} names that were requested on most (>10) days for our sample 
+fell into two categories. The first 
+contained AGDs that appear to be generated by concatenating four 
+lowercase-letter bigrams consisting of a consonant and a vowel (e.g., 
+\texttt{acbaelek.bazar}, \texttt{acbaelel.bazar}, \texttt{acbaelid.bazar}). 
+These names appear to be 
+generated by the 
+malware BazarLoader~\cite{bazarloader_dga}. The second category contains 38 
+names that do not appear to be randomly generated. We uploaded these to 
+VirusTotal and determined that 23 were labeled as malicious by at least one 
+threat intelligence service, three were not indexed by VirusTotal, and the 
+remainder were not labeled as malicious. Six of the names were themed around 
+Australian tourism, of which four were labeled malicious and two were not: 
+these names may also be associated with 
+BazarLoader~\cite{alienvault_bazarloader}. 
+
+We note that the most popular Emercoin and Namecoin names each day were largely 
+known to be associated with malware, which we determined by manually searching 
+the Internet. We present a sample of the most popular malware-related names in 
+Table~\ref{tab:namecoin_emercoin}. These names were 
+taken from the October sample; the days in April had a similarly high number of 
+malicious names that received high volumes of requests. 
+
+\subsection{Unregistered ENS and Unstoppable Domains names}
+ 
+We observed a large number of names, mostly AGDs, with alt-TLDs that are used 
+by ENS and Unstoppable Domains. However, we found that these names are actually 
+unrelated to blockchain naming systems and are likely not part of malware 
+campaigns. We drew this conclusion for two reasons. First, the randomly 
+generated names
+only had one lookup each, and all of these lookups originated from a single AS 
+(AS15169, Google). This is in contrast to lookups for AGDs in Emercoin and 
+Namecoin that are known to be part of malware campaigns, whose lookups 
+originate from many different ASes and where some names receive many more than 
+a single lookup request. Second, not a single AGD with an ENS or Unstoppable 
+Domains alt-TLD was registered in a blockchain naming system. If these names 
+had been part of a malware campaign, at least one should have resolved to the 
+address of a C2 server at some point. It is possible that B-root only received 
+failed requests from a single misconfigured machine, but this does not match 
+the behavior we observe for malware campaigns that abuse Namecoin and Emercoin.
+
+We predict that rather than being intended for use in a blockchain naming 
+system, these AGDs were leaked from local networks, and were never intended to 
+be resolved by either a blockchain naming system \emph{or} the DNS root. A 
+prior study on root DNS queries 
 found that some networks use non-ICANN TLDs internally, under the assumption 
 that queries for those names will never reach external DNS resolvers. However, 
 these queries frequently leak to external networks~\cite{chen_wpad_2016}. We 
-observed that some internal networks use alt-TLDs that overlap with the 
-blockchain naming systems' alt-TLDs. For example, we observed numerous queries 
-for randomly generated subdomains of 
-\texttt{kroger.com.btc}, \texttt{nordic.x}, \texttt{sata.x}, and others. These 
-domains are not registered in any blockchain-based naming system. 
-Distinguishing these names from 
-blockchain-related names is particularly challenging when the names may be part 
-of DGA-based malware campaigns. The obvious test for whether a name is meant to 
-be blockchain-related is whether the name is registered in the blockchain 
-naming system; however, when the name is a potential AGD, it may be 
-unregistered even though it is blockchain-related. Unfortunately, we see a wide 
-variety of potential AGDs across most alt-TLDs in the B-root sample.
+predict that some internal networks use alt-TLDs that coincidentally overlap 
+with the blockchain naming systems' alt-TLDs. We concluded that these names 
+were unlikely to be part of DGA-based malware campaigns, and were also likely 
+unrelated to blockchain naming systems at all.
 
-We solved this problem by observing that we have some ground truth for what a 
-malware campaign looks like from B-root's perspective. Many of the most 
-frequently queried names at B-root are known to be 
-associated with malware: an example of these names is shown in 
-Table~\ref{tab:namecoin_emercoin}. These campaigns have two properties. 
-First, the frequently queried names originate from multiple different ASes. 
-Second, AGDs associated with malware campaigns fall into two categories on any 
-given day: the names that are currently registered and resolve to the C2 
-server, and the unregistered names. For each of the popular, randomly generated 
-names in Table~\ref{tab:namecoin_emercoin}, we observe a large number of 
-similar names, generated using the same algorithm, that have many fewer 
-requests. We found that the randomly generated names with Namecoin and 
-Emercoin's alt-TLDs had these properties indicative of a malware campaign, the 
-randomly generated names using ENS and Unstoppable Domains' alt-TLDs did not. 
-These randomly generated names usually only had one lookup 
-each, and were universally unregistered: we never observed 
-any names generated by the same DGA that were registered in a 
-blockchain naming system. We concluded that these 
-names were unlikely to be part of DGA-based malware 
-campaigns. Therefore, we removed all names from the B-root 
-sample that had ENS or Unstoppable Domains 
-alt-TLDs but were unregistered in those naming systems. 
+\subsection{Registered names from ENS and Unstoppable Domains}
+
+Very few registered names from ENS or Unstoppable Domains leaked to B-root: we 
+observed 
+fewer than 400 unique ENS names per day and fewer than 300 unique daily names 
+from Unstoppable Domains. These names also received few requests per day 
+compared to the names from Namecoin and Emercoin. No name received more than 
+approximately 350 lookups, % this number has been split in half already
+in contrast with the most popular domains in 
+Namecoin, which received an order of magnitude more requests per day. 
+We submitted every ENS and Unstoppable Domains name that received more than ten 
+daily requests to VirusTotal. None were in VirusTotal's database, in contrast 
+with names from Emercoin and Namecoin, which were largely present and flagged 
+as malicious.
+
+Each of these findings regarding names that leak to B-root support our 
+conclusion that malware still heavily utilizes older systems like Namecoin and 
+Emercoin, but has not yet adopted new systems like ENS or Unstoppable Domains. 
+
+
+%Some queries for domains with alt-TLDs at B-root were unrelated to the 
+%blockchain systems they share alt-TLDs with. A prior study on root DNS queries 
+%found that some networks use non-ICANN TLDs internally, under the assumption 
+%that queries for those names will never reach external DNS resolvers. However, 
+%these queries frequently leak to external networks~\cite{chen_wpad_2016}. We 
+%observed that some internal networks use alt-TLDs that overlap with the 
+%blockchain naming systems' alt-TLDs. For example, we observed numerous queries 
+%for randomly generated subdomains of 
+%\texttt{kroger.com.btc}, \texttt{nordic.x}, \texttt{sata.x}, and others. These 
+%domains are not registered in any blockchain-based naming system. 
+%Distinguishing these names from 
+%blockchain-related names is particularly challenging when the names may be 
+%part 
+%of DGA-based malware campaigns. The obvious test for whether a name is meant 
+%to 
+%be blockchain-related is whether the name is registered in the blockchain 
+%naming system; however, when the name is a potential AGD, it may be 
+%unregistered even though it is blockchain-related. Unfortunately, we see a 
+%wide 
+%variety of potential AGDs across most alt-TLDs in the B-root sample.
+%
+%We solved this problem by observing that we have some ground truth for what a 
+%malware campaign looks like from B-root's perspective. Many of the most 
+%frequently queried names at B-root are known to be 
+%associated with malware: an example of these names is shown in 
+%Table~\ref{tab:namecoin_emercoin}. These campaigns have two properties. 
+%First, the frequently queried names originate from many different ASes. 
+%Second, AGDs associated with malware campaigns fall into two categories on any 
+%given day: the names that are currently registered and resolve to the C2 
+%server, and the unregistered names. For each of the popular, randomly 
+%generated 
+%names in Table~\ref{tab:namecoin_emercoin}, we observe a large number of 
+%similar names, generated using the same algorithm, that have many fewer 
+%requests. We found that the randomly generated names with Namecoin and 
+%Emercoin's alt-TLDs had these properties indicative of a malware campaign, the 
+%randomly generated names using ENS and Unstoppable Domains' alt-TLDs did not. 
+
 
 
 
@@ -93,73 +243,20 @@ alt-TLDs but were unregistered in those naming systems.
 %the B-root sample if they were not registered in their respective naming 
 %system.
 
-We also discovered that domains used in the WPAD discovery protocol, a protocol 
-used for local network participants to discover DNS proxies, used alt-TLDs that 
-overlapped with blockchain DNS. WPAD DNS lookups take the form of 
-\texttt{wpad.company-name.alt-TLD}~\cite{chen_wpad_2016}. If we observe a 
-request of that form, we consider it to be strong evidence that other requests 
-to subdomains of \texttt{company-name.alt-TLD} have escaped from an internal 
-network. We remove these requests from our sample as well. 
+%We also discovered that domains used in the WPAD discovery protocol, a 
+%protocol 
+%used for local network participants to discover DNS proxies, used alt-TLDs 
+%that 
+%overlapped with blockchain DNS. WPAD DNS lookups take the form of 
+%\texttt{wpad.company-name.alt-TLD}~\cite{chen_wpad_2016}. If we observe a 
+%request of that form, we consider it to be strong evidence that other requests 
+%to subdomains of \texttt{company-name.alt-TLD} have escaped from an internal 
+%network. We remove these requests from our sample as well. 
 
-\subsection{Queries for UD and ENS names}
 
-%Second, we note that some of these names appear to be intended for typo 
-%squatting. \randall{Tens of? Hundreds of?} lookups occur for variations of 
-%popular names such as ``netflix,'' ``gmail,'' ``apple,'' and 
-%``yahoo.'' The string ``netflix'' in particular was popular. \randall{All of 
-	%these were .kred and 
-	%.luxe and stuff, not Namecoin/Emercoin.
-	
-	
-After removing names that are not registered in Unstoppable Domains, we 
-observed no more than six names with each Unstoppable TLD requested from B-root 
-on either of our sample days. Either no one is using Unstoppable to look up 
-domains (consistent with the types of records they store), or Unstoppable has 
-modest adoption but most people are using the extensions properly.
+%\subsection{Queries for Namecoin and Emercoin Names}
 
-ENS names leaked slightly more frequently: we saw 186 names in the October 19th
-sample and 313 in the April 15th sample.
 
-\subsection{Queries for Namecoin and Emercoin Names}
-
-\begin{table}
-	\begin{tabular}{lrr}
-		\toprule
-		Malware & Domain & Lookups \\
-		\midrule
-		Gandcrab	&	malwarehunterteam.bit	&	696	\\
-		&	politiaromana.bit	&	682	\\
-		&	gdcb.bit	&	632	\\
-		&	zonealarm.bit	&	1256	\\
-		&	ransomware.bit	&	2078	\\
-		&	nomoreransom.coin	&	2242	\\
-		CHESSYLITE	&	leomoon.bit	&	1870	\\
-		&	lookstat.bit	&	1420	\\
-		&	sysmonitor.bit	&	1038	\\
-		&	volstat.bit	&	910	\\
-		&	xoonday.bit	&	1146	\\
-		Dofoil	&	vrubl.bit	&	1976	\\
-		&	levashov.bit	&	2118	\\
-		&	vinik.bit	&	12530	\\
-		KPOT Stealer	&	kpotuvorot10.bit	&	3902	\\
-		&	star-fox.bit	&	701	\\
-		Team9 Loader	&	bestgame.bazar	&	1884	\\
-		&	forgame.bazar	&	1730	\\
-		&	zirabuo.bazar	&	102	\\
-		&	tallcareful.bazar	&	292	\\
-		&	coastdeny.bazar	&	278	\\
-		BazarLoader	&	acegikbcggin.bazar	&	1092	\\
-		&	acegilbcggio.bazar	&	934	\\
-		Trojan RTM	&	stat-counter-[0-9]-[0-9].bit	&	20996	\\
-		Necurs	&	jfbbrj3bbbd.bit	&	3009	\\
-		& qcmbartuop.bit & 2632 \\
-		\bottomrule
-	\end{tabular}
-	\caption{Examples of malicious Namecoin and Emercoin domains in the October 
-	sample of B-root 
-		queries.}
-	\label{tab:namecoin_emercoin}
-\end{table}
 
 %\begin{figure}[t]
 %	\centering
@@ -181,31 +278,31 @@ sample and 313 in the April 15th sample.
 %	\label{fig:namecoin_and_emercoin_counts}
 %\end{figure}
 
-The big takeaway is that there's a long tail which is mostly 
-composed of AGDs that are each looked up once, and a small 
-number of names (a few AGDs but mostly human-meaningful 
-names) that are largely related to malware.
-
-We examined the names from each sample 
-and found ample evidence of names that are likely to be used by malware. We 
-manually inspected 
-the Emercoin and Namecoin names with the most queries, and found that the vast 
-majority of the most 
-frequently queried names were associated with malware. An example of malware 
-names from the October 
-sample of B-root queries is shown in Table~\ref{tab:namecoin_emercoin}. We 
-found that many of the 
-names appeared to be randomly generated, making them unlikely to be benign. 
-\randall{not true, randomly generated could be non-malware we just don't know 
-	what they are.} The only popular Emercoin 
-or Namecoin name that was not associated with malware was 
-\texttt{nnm-club.lib}, which appears to be a 
-pirating site. These findings are consistent with previous work that found the 
-vast majority of names 
-and IPs on Emercoin and Namecoin to be associated with malicious 
-behavior~\cite{patsakis_unravelling_2020, casino_unearthing_2021}. 
-\randall{more results from these 
-	papers?}
+%The big takeaway is that there's a long tail which is mostly 
+%composed of AGDs that are each looked up once, and a small 
+%number of names (a few AGDs but mostly human-meaningful 
+%names) that are largely related to malware.
+%
+%We examined the names from each sample 
+%and found ample evidence of names that are likely to be used by malware. We 
+%manually inspected 
+%the Emercoin and Namecoin names with the most queries, and found that the vast 
+%majority of the most 
+%frequently queried names were associated with malware. An example of malware 
+%names from the October 
+%sample of B-root queries is shown in Table~\ref{tab:namecoin_emercoin}. We 
+%found that many of the 
+%names appeared to be randomly generated, making them unlikely to be benign. 
+%\randall{not true, randomly generated could be non-malware we just don't know 
+%	what they are.} The only popular Emercoin 
+%or Namecoin name that was not associated with malware was 
+%\texttt{nnm-club.lib}, which appears to be a 
+%pirating site. These findings are consistent with previous work that found the 
+%vast majority of names 
+%and IPs on Emercoin and Namecoin to be associated with malicious 
+%behavior~\cite{patsakis_unravelling_2020, casino_unearthing_2021}. 
+%\randall{more results from these 
+%	papers?}
 
 
 	
@@ -217,9 +314,9 @@ behavior~\cite{patsakis_unravelling_2020, casino_unearthing_2021}.
 %commented regex) or randomly generated names (6956, according to my heuristic 
 %of no English words above either 4 or 5 chars (check this, probably redo this 
 %number)) %([0-9]+|x+)\.([0-9]+|x+)\.([0-9]+|x+)\.x\.\s
-
-Across all data from October and April, 39,849 .x names were misconfigured IP 
-addresses.
+%
+%Across all data from October and April, 39,849 .x names were misconfigured IP 
+%addresses.
 
 %\subsection{.bit and .bazar}
 %
@@ -230,35 +327,6 @@ addresses.
 %DGAs work, we predict that the randomly generated .x, .eth, and .bitcoin 
 %domains are not attempts to find C2 domains.
 
-
-\subsection{Frequency of requests}
-
-We investigated how many days each name was requested, and found that the vast 
-majority of names are only requested once, on a single day. There were two 
-notable exceptions: a group of \texttt{.bit} names that were requested 
-on every day of the sample, and a group of \texttt{.bazar} names that 
-were requested on most or all days of the sample.
-
-We analyzed the group of .bit names that were requested on all 14 days of our 
-sample and had more total requests than any name requested on fewer than 14 
-days. 66 names fit this criteria. We submitted them to VirusTotal and found 
-that only 18 names were not labeled malicious by any engine, while 48 were 
-labeled malicious by at least one. 
-
-The \texttt{.bazar} names that were requested on most (>10) days for our sample 
-fell into two categories. The first 
-contained AGDs that appear to be generated by concatenating four 
-lowercase-letter bigrams consisting of a consonant and a vowel (e.g., 
-acbaelek.bazar, acbaelel.bazar, acbaelid.bazar). These names appear to be 
-generated by the 
-malware BazarLoader~\cite{bazarloader_dga}. The second category contains 38 
-names that do not appear to be randomly generated. We uploaded these to 
-VirusTotal and determined that 23 were labeled as malicious by at least one 
-threat intelligence service, three were not indexed by VirusTotal, and the 
-remainder were not labeled as malicious. Six of the names were themed around 
-Australian tourism, of which four were labeled malicious and two were not: 
-these names may also be associated with 
-BazarLoader~\cite{alienvault_bazarloader}. 
 
 
 %\begin{figure}[t]
