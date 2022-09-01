@@ -1,6 +1,11 @@
 \section{Modifying records}
 \label{sec:modifying_records}
 
+\randall{Somewhere in here I need to talk about what happens if a naming 
+service is providing a name parking service where the naming service knows the 
+private key of the wallet that owns the domain so that they can make changes 
+for you. Then add a reference to that in Background where I talk about the 
+challenges produced by blockchain naming systems.}
 Malware authors must not only ensure their clients can access the blockchain 
 naming system, but 
 also ensure they can modify the addresses stored in the records when they 
@@ -10,39 +15,6 @@ naming-specific or general-purpose.
 
 \subsection{Challenges on general-purpose chains}
 \randall{Say somewhere that reads don't cost anything, only writes}
-
-
-Botnets often cycle through domain names and IP addresses for their C2 servers 
-quickly, to replace 
-blocklisted domains and IPs or prevent defenders from seizing 
-them~\cite{nadji_beheading_2013}. 
-Malware authors commonly use two strategies to cycle through records: fast 
-flux and AGDs (Algorithmically Generated Domains). Fast flux 
-is the practice of storing multiple records with low TTLs at a domain, and 
-changing the records as 
-soon as the TTL expires. This allows a domain to resolve to a different group 
-of IP addresses every 
-few minutes~\cite{holz_measuring_2008}. The IP addresses in question belong 
-to a pool of 
-compromised machines that can then route requests to the true C2 server. Fast 
-flux increases the 
-number of machines defenders must seize or neutralize, because if any of the 
-compromised machines 
-are still routing traffic, the system still works. However, fast flux is 
-still vulnerable to domain 
-takedowns. Malware authors address this weakness by cycling through domains as 
-well as IP addresses. Each infected host knows how to generate a large number 
-of potential domains, usually using the time or date as an input, but only a 
-few of these domains will be registered at a time. Because the remainder are 
-not registered, defenders cannot take them down preemptively. If a registered 
-domain is taken down, malware authors simply register a new one, and the 
-infected hosts all try to resolve each AGD in turn until they discover the new 
-one. Defenders must 
-register all of the domains that the infected hosts can generate to evade this 
-threat entirely~\cite{antonakakis_throw-away_2012}. However, this strategy is 
-often visible to a defender with a view into which DNS requests are made on a 
-network, because infected hosts must try to resolve a large number of 
-nonexistent domains.
 
 Generally speaking, DNS domains are cheaper, easier to modify, and 
 easier to replace than IP 
