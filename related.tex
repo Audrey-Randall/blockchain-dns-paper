@@ -1,0 +1,50 @@
+\section{Related Work}
+
+% Kalodner 2015, An Empirical Study of Namecoin
+Kalodner et al. performed the first study to our knowledge of 
+Namecoin in 2015~\cite{kalodner_namecoin_2015}. They conclude 
+that the Namecoin ecosystem was ``dysfunctional:'' only 28 
+out of 120,000 registered names were valid, not squatted, and 
+had nontrivial content.
+
+% Unravelling Ariadne's Thread
+Patsakis et al. present an analysis of potential weaknesses 
+and user risks of 
+Namecoin and Emercoin, including the risks of squatting, 51\% 
+attacks, phishing, and abuse by 
+malware~\cite{patsakis_unravelling_2020}. The authors also 
+provide an overview of the names stored in these systems, and 
+found that many names registered in the Alexa Top 1K were 
+also registered under Namecoin and Emercoin's alt-TLDs. Most 
+of these squatted names redirected to pornographic websites.
+
+% Unearthing malicious campaigns and actors from the 
+% blockchain DNS ecosystem~\cite{casino_unearthing_2021}, 
+% good graphs.
+Casino et al. analyzed the IP addresses in Namecoin and 
+Emercoin records~\cite{casino_unearthing_2021}. They first 
+identified malicious IP addresses using several threat 
+intelligence databases, and then clustered all the IPs into 
+``malicious,'' ``suspicious'' and ``benign'' categories with 
+a ``poisoning'' 
+approach. An IP was labeled ``malicious'' if a threat 
+intelligence database categorized it as such. It was labeled 
+``suspicious'' if it appeared in the same wallet, was 
+resolved to by the same domain, or shared the same email TXT 
+record as a malicious IP, and ``benign'' if it had no 
+connection to a malicious IP. Casino et al. discovered that 
+only 8\% of the IPs in Emercoin and 28\% of those in Namecoin 
+had no association with malicious IP addresses. While this 
+paper mentioned the existence of more recent blockchain 
+naming systems, it did not perform an analysis of any system 
+except Namecoin and Emercoin.
+
+Do we need papers that have tried to make decentralized 
+naming systems? 
+Ariadne's Thread has a list.
+
+Numerous other blockchain-based naming systems have been 
+proposed, including
+Blockstack~\cite{ali2016blockstack}, 
+Bitforest/Conifer~\cite{dong2018bitforest, dong2018conifer}, 
+BlockDNS~\cite{blockdns}
