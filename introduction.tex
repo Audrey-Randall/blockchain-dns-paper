@@ -62,47 +62,62 @@ Until recently, the naming layer used most frequently by malware was ordinary
 DNS, which is rarely 
 blocked at the protocol level, universally supported, and easy to configure. 
 Malware authors use 
-various strategies, such as fast flux or DGAs (domain generation algorithms), 
-to cycle through domains 
-or the IP addresses they resolve to and complicate defense efforts. However, 
+various strategies, such as DGAs (domain generation 
+algorithms), 
+to cycle through domains and complicate defense efforts. 
+However, 
 DNS domains are subject 
-to central authorities, who may be compelled to seize or deny access to abused 
+to central authorities (registrars), who may be compelled to 
+seize or deny access to abused 
 domains. Malware 
 authors have recently come up with an innovative solution to this risk: they 
 have started to use 
 \emph{decentralized naming systems}, in particular naming systems built on 
 blockchains. 
 
-Decentralized naming systems present several potential challenges for 
+Blockchain naming systems present several potential 
+challenges for 
 defenders. First, because they 
-have no central authority to carry out legal takedown requests, decentralized 
-systems are immune to 
-one of the most effective tools in malware defenders' arsenals. Second, some 
-decentralized systems 
-have high transaction costs to register and manage domains, which renders 
-certain existing defender 
-strategies less effective. For example, registering all domains that a domain 
-generation algorithm (DGA) 
-might eventually generate 
-is impractical in expensive decentralized naming systems. However, 
-decentralized naming systems 
+have no central authority to carry out legal takedown 
+requests, they are immune to one of the most effective tools 
+in malware defenders' arsenals. Second, some blockchain 
+naming systems 
+have high transaction costs to register and manage domains, 
+which renders some existing defense 
+strategies ineffective. For example, registering all domains 
+that a DGA can generate 
+is impractical in expensive blockchain naming systems. 
+However, blockchain naming systems 
 present challenges to malware authors as well, such as how to stealthily access 
 the system.
 
-We study the ecosystem and point out several places where defender 
-interventions are still possible. 
-In particular, we argue that infected hosts must pass through infrastructure 
-that is at least 
-partially centralized to access any fully decentralized naming system, and 
-these centralized or 
-partially centralized ``chokepoints'' still present viable points to stage 
-interventions. We also 
-study five existing decentralized, blockchain-based naming systems, and discuss 
-the challenges and 
-advantages that each present to malware authors and defenders. We conclude that 
-which decentralized 
-naming systems present a significant threat, defenders still have viable 
-options for enacting C2 
-takedowns.
+We study the blockchain naming ecosystem and point out 
+several places where defender interventions are still 
+possible. In particular, we argue that infected hosts must 
+pass through infrastructure that is at least 
+partially centralized to access any blockchain naming system, 
+and these centralized or partially centralized 
+``chokepoints'' still present viable locations to stage 
+interventions. We also study five existing decentralized, 
+blockchain-based naming systems, and discuss the challenges 
+and advantages that each present to malware authors and 
+defenders. We conclude that which blockchain 
+naming systems present a significant threat, defenders still 
+have viable options for enacting C2 takedowns.
 
-The remainder of this paper is organized as follows...
+The remainder of this paper is organized as follows. 
+Section~\ref{sec:background} describes how malware currently 
+uses DNS domains to contact C2 servers, how defenders 
+stage interventions against these domains, and how blockchain 
+naming systems render these interventions ineffective. 
+Section~\ref{sec:naming_systems} gives an overview of the 
+five most widely adopted blockchain naming systems. 
+Sections~\ref{sec:accessing_records} and 
+Section~\ref{sec:modifying_records} describe where defenders 
+can intervene in malware's attempts to access naming systems 
+and control naming records. Section~\ref{sec:b-root} details 
+measurements of how blockchain naming systems are used by 
+malware today. Section~\ref{sec:discussion} discusses the 
+theoretical requirements for a naming system to be a threat, 
+Section~\ref{sec:related} presents related work, and 
+Section~\ref{sec:conclusion} concludes.

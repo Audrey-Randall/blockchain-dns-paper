@@ -80,6 +80,7 @@
 %\author{Aaron Schulman}
 %\email{schulman@cs.ucsd.edu}
 %\affiliation{UC San Diego}
+%\author{Wes Hardaker}
 
 \title{The Challenges of Blockchain-Based Naming Systems for Malware Defenders}
 %\renewcommand{\shortauthors}{A. Randall \textit{et al.}}
@@ -88,11 +89,41 @@
 
 %\subtitle{...}
 
-%\abstract{stuff?}
-
-
 \maketitle
 \pagestyle{plain}
+
+\begin{abstract}
+	
+Malware operators require the flexibility to change the 
+location of C2 server in response to takedowns, without 
+losing control of infected hosts. This flexibility requires a 
+
+Malware requires a naming layer to contact its command 
+and control (C2) servers, because infected hosts must have 
+the flexibility to change where they expect the C2 server to 
+be. Until recently, DNS domains were the obvious choice for 
+implementing this naming layer, 
+but DNS domains may be taken down by the registrar that 
+sold them. Malware operators have recently responded to 
+this threat by utilizing blockchain-based naming systems 
+to store C2 server names. Blockchain naming systems are a 
+threat for malware defenders because they are not subject 
+to a centralized authority, such as a registrar, that can 
+take down abused domains, whether voluntarily or under 
+legal pressure. We analyze the blockchain naming system 
+ecosystem and identify new locations for defenders to 
+stage malware interventions. In particular, we find that 
+malware is obligated to use centralized or 
+semi-centralized infrastructure in order to connect to 
+blockchain naming systems and modify their records. We 
+also present a study of how blockchain naming systems are 
+currently abused by malware operators, and discuss the 
+factors that would cause a blockchain naming system to 
+become an unstoppable threat. We conclude that
+existing blockchain naming systems still provide 
+opportunities for defenders to prevent malware from 
+contacting its C2 servers.
+\end{abstract}
 
 \input{introduction}
 \input{background}
@@ -104,10 +135,11 @@
 \input{related}
 \input{conclusion}
 
-\section{Acknowledgments}
-
-The authors would like to thank Wes Hardaker, in whatever format he wants the 
-b-root project cited, for the b-root names.
+%\section{Acknowledgments}
+%
+%The authors would like to thank Wes Hardaker, in whatever 
+%format he wants the 
+%b-root project cited, for the b-root names.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
