@@ -39,12 +39,58 @@ paper mentioned the existence of more recent blockchain
 naming systems, it did not perform an analysis of any system 
 except Namecoin and Emercoin.
 
-Do we need papers that have tried to make decentralized 
-naming systems? 
-Ariadne's Thread has a list.
+%Do we need papers that have tried to make decentralized 
+%naming systems? 
+%Ariadne's Thread has a list.
 
 Numerous other blockchain-based naming systems have been 
 proposed, including
-Blockstack~\cite{ali2016blockstack}, 
+the Blockstack Naming System~\cite{ali2016blockstack}, 
 Bitforest/Conifer~\cite{dong2018bitforest, dong2018conifer}, 
-BlockDNS~\cite{blockdns}
+BlockDNS~\cite{blockdns}, and 
+Nebulis~\cite{nebulis_2016}. To our knowledge, 
+only Blockstack has evolved into a commercial product. We 
+excluded the Blockstack Naming System from this study because 
+it does not appear to be as popular as the other systems we 
+study.
+
+Other work has analyzed the ways in which blockchain 
+technologies in general might be abused by 
+malware. Pletinckx et al. analyzed Cerber ransomware and 
+found that it used blockchain wallet addresses as 
+domains~\cite{plentinckx_cerber_2018}. 
+Hassan et al. point out that blockchain nodes reside 
+in so many different legal jurisdictions, it will be 
+difficult for regulators to control what information gets 
+passed across country borders~\cite{hassan_blockchain_2020}. 
+Moubarak et al. present a theoretical design for malware to 
+store pieces of its payload on 
+Bitcoin~\cite{moubarak_developing_2018}.
+%Dai et al. enumerated several methods by which 
+%blockchains can be used as attack 
+%vectors~\cite{dai_cybersecurity_2017} \randall{wrong paper}
+
+Relatively little work has been done on defenses against 
+malware that uses blockchain naming systems. Huang et al. 
+developed a machine learning-based detection 
+method for distinguishing malicious blockchain-based names 
+from benign names in DNS traffic~\cite{huang2020leopard}.
+Hu et al. presented a brief comparison of DNS and 
+Bitcoin-based naming systems, and noted that small, 
+naming-specific blockchains like Namecoin were vulnerable to 
+51\% attacks~\cite{wei2017review}.
+
+Prior work has evaluated the effectiveness of interventions 
+that target DNS domains. Kesari et al. provide an overview of 
+legal intervention methods and cites their use in a number of 
+malware takedowns~\cite{kesari_deterring_2017}. Wang et al. 
+studied the use of TROs to seize storefronts run by 
+spammers~\cite{wang_search_2014}. Liu et al. analyzed the 
+effectiveness of two interventions that were initiated by 
+registrars and designed to stop 
+spammers from registering 
+domains~\cite{liu_registrar_intervention}. Prior literature 
+has also analyzed interventions based on taking down hosting 
+providers, and concluded that these interventions have modest 
+or mixed effectiveness~\cite{bradbury2014testing, 
+konte2015aswatch, noroozian_platforms_2019, alrwais_bph}. 
