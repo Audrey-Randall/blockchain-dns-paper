@@ -94,32 +94,55 @@
 
 \begin{abstract}
 	
-Malware operators require the flexibility to change the 
-location of C2 server in response to takedowns, without 
-losing control of infected hosts. This flexibility requires a 
+%Malware operators require the flexibility to change the 
+%location of their C2 servers in response to takedowns, 
+%without 
+%losing control of infected hosts. This flexibility requires 
+%a naming layer.
+%
+%Malware on infected hosts uses a variety of means to contact 
+%its command and control servers. 
+%
+%To maintain control over infected hosts, malware operators 
+%use a variety of means to locate their C2 servers. All of 
+%these methods involve a naming layer, to allow for 
+%flexibility in changing the C2 server's location in the 
+%event 
+%of a takedown.
 
-Malware requires a naming layer to contact its command 
-and control (C2) servers, because infected hosts must have 
-the flexibility to change where they expect the C2 server to 
-be. Until recently, DNS domains were the obvious choice for 
-implementing this naming layer, 
-but DNS domains may be taken down by the registrar that 
-sold them. Malware operators have recently responded to 
-this threat by utilizing blockchain-based naming systems 
-to store C2 server names. Blockchain naming systems are a 
+%Malware requires a naming layer to contact its command 
+%and control (C2) servers, because infected hosts must have 
+%the flexibility to change where they expect the C2 server to 
+%be. Until recently, DNS domains were the obvious choice for 
+%implementing this naming layer, 
+%but DNS domains may be taken down by the registrar that 
+%sold them. 
+
+Successful malware campaigns often rely on the ability of 
+infected hosts to locate and contact C2 servers. Until 
+recently, malware campaigns generally used DNS domains for 
+this purpose, but DNS domains may be taken down by the 
+registrar that sold them. In response to this threat, malware 
+operators have begun using \emph{blockchain-based naming 
+systems} to store C2 server names. Blockchain naming systems 
+are a 
 threat for malware defenders because they are not subject 
 to a centralized authority, such as a registrar, that can 
-take down abused domains, whether voluntarily or under 
-legal pressure. We analyze the blockchain naming system 
-ecosystem and identify new locations for defenders to 
-stage malware interventions. In particular, we find that 
+take down abused domains, either voluntarily or under 
+legal pressure. In fact, blockchains are robust against a 
+variety of interventions that work on DNS domains, which is 
+bad news for defenders. 
+
+We analyze the ecosystem of blockchain naming systems and 
+identify new locations for defenders to stage interventions 
+against malware. In particular, we find that 
 malware is obligated to use centralized or 
-semi-centralized infrastructure in order to connect to 
-blockchain naming systems and modify their records. We 
-also present a study of how blockchain naming systems are 
-currently abused by malware operators, and discuss the 
-factors that would cause a blockchain naming system to 
-become an unstoppable threat. We conclude that
+semi-centralized infrastructure to connect to 
+blockchain naming systems and modify the records stored 
+within. We also present a study of how blockchain naming 
+systems are currently abused by malware operators, and 
+discuss the factors that would cause a blockchain naming 
+system to become an unstoppable threat. We conclude that
 existing blockchain naming systems still provide 
 opportunities for defenders to prevent malware from 
 contacting its C2 servers.
