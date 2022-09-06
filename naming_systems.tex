@@ -34,8 +34,8 @@
 	\caption{Non-exhaustive selection of proxies, browsers, 
 		and extensions 
 		that can be used to access blockchain-based naming 
-		systems. \randall{maybe should have a citation for each 
-			of these}}
+		systems.}
+		%\randall{maybe should have a citation for each of these}}
 	\label{tab:proxies_and_tlds}
 \end{table}
 
@@ -80,9 +80,8 @@ blockchains have such specific purposes, they differ
 from blockchains like Ethereum in two ways: they have fewer 
 participants and users, and their transaction fees are much 
 less expensive. Both properties have implications for 
-defenders --- see Sections~\ref{sec:accessing_records} 
-and~\ref{sec:modifying_records} for more details. 
-\randall{maybe just modifying records section}
+defenders --- see Section~\ref{sec:accessing_records} 
+for more details. 
 
 \subsubsection{Namecoin and Emercoin}
 
@@ -393,10 +392,9 @@ metadata endpoint.\footnote{
 This approach yielded a sample of 16,026 names. As with ENS, 
 some names appear to exist in Unstoppable Domains that cannot 
 be found by collecting transactions from these registry 
-contracts, so we note that our sample does not contain all of 
-the names present in Unstoppable Domains.
-\randall{This is still a footgun but less so.}
-
+contracts. For example, it appears to be possible to store Unstoppable Domains 
+names on the Polygon blockchain instead of Ethereum. We therefore note that our 
+sample does not contain all of the names present in Unstoppable Domains.
 
 Figure~\ref{fig:unstoppable_records} shows the distribution 
 of record types found in the Unstoppable Domains names. As in 
