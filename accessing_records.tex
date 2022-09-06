@@ -269,6 +269,7 @@ every machine in the blockchain, which is an attack that
 blockchains are highly robust against.
 
 \subsection{Interventions after the name record is acquired}
+\label{sec:interventions_at_name}
 
 If an infected host successfully retrieves its C2 record, 
 that record might take several forms. The three that we 
@@ -284,153 +285,72 @@ record types like links to social media posts.
 Each of these record types are subject to all of the 
 traditional interventions that have already 
 been described, except one: DS addresses. Distributed storage 
-systems provide a limited form of ``bulletproof'' hosting, 
-because they do not offer the ability to host dynamic 
-websites. Any C2 center implemented entirely on such a 
+systems provide a form of ``bulletproof'' hosting, under the limitation
+that all hosted content must be static files and not dynamic 
+websites. Any C2 server implemented entirely on such a 
 system must be a simple file with no 
 dynamic content. Additionally, today's DS systems are 
 content-addressed, which requires malware operators to use a 
 naming layer rather than hard-coding the DS address of 
 their C2 server into their payloads. If the file that 
 represents the C2 server changes, its address will change as 
-well, because the address is created from a hash of the file.
+well, because the address is created from a hash of the file. The naming layer 
+required to reach the DS system is subject to the same interventions as any 
+other request to a blockchain.
 
-In another advantage for defenders, some DS systems do not 
-have redundancy: only a single machine hosts each piece of a 
-file. This raises the possibility of 
-discovering the particular 
-machine responsible for hosting a C2 server and seizing 
-it. 
+In another advantage for defenders, some DS systems such as IPFS do not 
+have redundancy: only a single machine hosts each piece of a file. This raises 
+the possibility of discovering the particular machine responsible for hosting a 
+C2 server and seizing it. 
 
-%Accessing a DS system is the same as accessing a distributed 
-%blockchain-based naming layer: you can do it either by proxy 
-%or by being a first-class member of the network, in which 
-%case you need bootstrap nodes. Theoretically, malware can go 
-%straight to the storage layer, but this is unlikely to be 
-%feasible given the way current DS systems are set up. The 
-%reason malware needs 
-%to use a naming layer to connect to the current generation 
-%of 
-%distributed file storage systems is because they're 
-%content-addressable. As soon as the file changes, so 
-%does its address, and the malware that knew the old address 
-%is useless. 
-%However, this is not a fundamental limitation of distributed 
-%storage systems --- a system could be designed in the future 
-%that doesn't have this limitation.
+A final possibility for intervening with the name record may be to seize 
+names that are stored in ``hosted'' or ``custodial'' wallets. Businesses such 
+as cryptocurrency exchanges provide custodial wallets for users who wish to let 
+the company handle their blockchain-based assets. This service is designed to 
+make blockchain interaction easier for customers, but it means that the 
+business knows the custodial wallet's private key. If a name is stored in a 
+custodial wallet, the business that runs the wallet 
+could seize it~\cite{pegoraro_blockchain_2021}. However, a 
+successful intervention must be difficult for malware operators to 
+evade, and we note that malware operators with good operational practices can 
+simply choose not to use custodial wallets. 
 
-%\subsection{Old stuff, Accessing blockchains using proxies}
+\subsection{Intervening with name modification or purchase}
 
-%As a side note, the existence of competing naming systems in 
-%which name 
-%collisions are possible 
-%opens up the possibility of collision-based attacks. There 
-%is no governance 
-%system in place to prevent different systems from adopting 
-%the same TLDs and 
-%causing name collisions. In fact, several collisions already 
-%exist, both 
-%between blockchain-based systems themselves (Emercoin and 
-%Unstoppable both 
-%provide a ``.coin'' TLD) and between ICANN TLDs and 
-%blockchain-based systems 
-%(both Handshake and ICANN provide ``.music''). 
-%This means the record that a user receives when resolving a 
-%name with a 
-%collision depends on which resolution method they use. If 
-%the user has 
-%multiple 
-%proxies set up --- for example, multiple browser extensions 
-%installed that 
-%each 
-%try to resolve domains with a specific TLD --- then the 
-%record received will 
-%depend on which of those proxies takes precedence, which is 
-%not at all 
-%clearly 
-%defined. This lack of centralized governance enables several 
-%classes of 
-%attacks, such as squatting 
-%and phishing, which are beyond the scope of this paper.
+Generally speaking, DNS domains are cheaper, easier to modify, and 
+easier to replace than IP addresses, because each IP address 
+represents a compromised machine while new domains can be 
+purchased inexpensively. Blockchain-based domains on 
+general-purpose chains, such as Bitcoin and Ethereum, 
+change this norm. While resolving a name is free, malware 
+operators must pay \emph{transaction fees} 
+(known as \emph{``gas fees''} on Ethereum)
+to register or modify names. These transaction fees 
+can be quite expensive. For example, we found that 
+registering a new name on the Unstoppable Domains service 
+cost nearly \$80 in gas fees during a period of high fees. 
+In contrast, the cost of the name itself was \$10. While 
+licit users may wait for fees to be low at times of low 
+network congestion, malware operators may not have that 
+choice if they wish to avoid downtime in their campaign. High 
+transaction costs poses challenges for defenders as well. For 
+example, to combat DNS-based DGAs, defenders have the option 
+of registering every domain the DGA will ever generate. This 
+intervention would be much less practical if each 
+registration was nearly an order of magnitude more expensive.
+
+Naming-specific blockchains, such as Namecoin, Emercoin, and Handshake, 
+present a different set of tradeoffs for defenders and malware 
+operators. These 
+blockchains are created with the sole intention of hosting a naming system. 
+With fewer users and correspondingly less demand, these systems' names are 
+usually much less expensive than names in Ethereum-based systems. This enables 
+malware authors to use fast flux or DGA-based strategies, and also may enable 
+defenders to pre-register domains generated by DGAs. 
 
 
 
-\subsection{Case studies}
 
-\subsubsection{OpenNIC ceasing support of \texttt{.bit}}
-
-OpenNIC is a decentralized proxy service that 
-resolves names from several alternative naming systems, 
-including Namecoin and Emercoin~\cite{opennic}. OpenNIC's 
-resolvers are run by a small community of 
-volunteers~\cite{opennic_servers}. In June 2019, this 
-community voted of their own volition to remove support for 
-Namecoin's \texttt{.bit} alt-TLD, because providers were 
-beginning to block OpenNIC resolvers that were used by 
-malware to resolve Namecoin 
-names~\cite{opennic_namecoin_vote}.
-
-OpenNIC's decision to cease supporting Namecoin was not the 
-result of a direct intervention by defenders, but it still 
-yields an important lesson. Even a decentralized proxy 
-service may be composed of few enough individuals that it is 
-possible to cajole or compel them to stop resolving names 
-used by malware. Furthermore, OpenNIC's community held this 
-vote in response to pressure from Spamhaus, Malwarebytes, and 
-other providers, who began blocklisting OpenNIC resolver 
-domains: even if a proxy's community cannot be contacted 
-directly, it is still possible to pressure them to cease 
-resolving names used by malware.
-
-\subsubsection{BDNS takedown}
-
-Defenders have already attempted to take down a proxy for 
-accessing blockchain domains: ``Blockchain-DNS.info,'' also 
-known as BDNS. BDNS reported on their website that in April 
-2018, seven of their domain names were ``un-delegated'' and 
-one of their API servers was shut down without 
-warning~\cite{blockchain-dns-info-wayback}. The service 
-received a message from Spamhaus shortly after noticing the 
-takedown, stating that several of 
-BDNS's domains had been added to Spamhaus's blocklist. BDNS 
-claimed that their browser extensions continued to resolve 
-blockchain names using other endpoints, and directed users to 
-a list of endpoints that were still 
-working~\cite{github_bdns_wayback}. BDNS also stated that 
-they had moved some infrastructure to a friendlier hosting 
-provider, PRQ, which states on its website that ``If 
-[content] is legal in Sweden, we will host it, and will keep 
-it up regardless of any pressure to take it 
-down''~\cite{prq}. 
-
-This takedown effort provides several lessons for defenders. 
-First, defenders must take care when choosing a takedown 
-strategy for a proxy. In this case, defenders tried two 
-tactics: 
-adding the proxy's endpoints to a widely used blocklist and 
-taking down some domains and a hosting server entirely. 
-The former tactic appeared to work well in locations where 
-ISPs use Spamhaus's blocklist: BDNS stated that their 
-proxy ``may be still unreachable in those parts of the 
-world.'' However, the domain takedown appeared to be only 
-partially effective, since BDNS could still resolve 
-blockchain names using unaffected endpoints. We conclude that 
-care must be taken to enumerate all of a proxy's endpoints 
-and shut them down simultaneously.  
-
-At the time of writing, all of the endpoints listed in BDNS's 
-Github repository~\cite{github_bdns_wayback} are either 
-failing to resolve or resolving but failing to 
-load content. However, it is unclear whether defenders 
-performed a more successful takedown or the service shut down 
-for other reasons. One endpoint, \texttt{bdns.io}, has 
-apparently been sinkholed by ShadowServer, since its NS 
-records now point to variants of the name 
-sinkhole.shadowserver.org.\footnote{sinkhole-0[0-4].shadowserver.org
-and sinkhole-[a-b].shadowserver.org.} We were unable to 
-determine if ShadowServer was involved in the original 
-takedown effort or if it sinkholed this domain at a later 
-date.
 
 
 %\subsection{Naming record formats}

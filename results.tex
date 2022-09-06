@@ -43,18 +43,22 @@
 	\label{tab:namecoin_emercoin}
 \end{table}
 
-Our findings up until now have indicated that
-malware still heavily utilizes Emercoin and Namecoin, but has 
-not made the jump to ENS and Unstoppable Domains. However, to fully test this 
-assumption, we needed to check not only which domains were \emph{registered} in 
-each system, but also which domains were being \emph{used}. 
+Our analysis of the registered names in each blockchain naming system 
+(Section~\ref{sec:naming_systems}) indicated that malware is not yet utilizing 
+ENS and Unstoppable Domains. Additionally, recent work on the records stored in 
+Emercoin and Namecoin found that these systems were heavily 
+utilized by malware as recently as 2020 ~\cite{casino_unearthing_2021}. 
+However, to test whether malware is still using Namecoin and Emercoin and is 
+not using ENS and Unstoppable Domains, it is necessary to analyze not only the 
+\emph{registered} names in each system, but also which domains are being 
+\emph{used}. 
 This is challenging because name resolutions are not 
 transactions: they are read-only operations that do not leave 
-a record in the blockchain. We cannot directly measure 
+a record on the blockchain. We cannot directly measure 
 usage of blockchain names, but we observed that a side 
 channel might exist to estimate name usage: ``leakage'' to the DNS. We 
 predicted that since blockchain names require configuring alternate resolution 
-systems, some might ``leak'' into the DNS when misconfigured machines 
+systems, some requests might ``leak'' into the DNS when misconfigured machines 
 attempt to resolve them as ordinary DNS domains. These leaked 
 names would be visible at the root DNS servers, but would not 
 be forwarded to any other DNS servers, because the roots 
@@ -62,8 +66,8 @@ would respond that the alt-TLDs do not exist. An observer who could see which
 names were requested at a DNS root server with alt-TLDs corresponding to 
 blockchain naming systems could get a sense for which names are in use.
 
-We therefore took two samples of the names that were 
-requested at B-root over the course of several days. The first sample consisted 
+We therefore took two samples of the names that were requested at the DNS 
+B-root over the course of several days. The first sample consisted 
 of names and how many requests were made for each on October 19, 2021. 
 The second sample consisted of names, numbers of requests, and the ASes the 
 requests were made from. It spanned two weeks in April 2022, from April 16 to 
