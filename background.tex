@@ -1,29 +1,31 @@
 \section{Background}
 \label{sec:background}
 
-From a malware author's perspective, an ideal naming system for C2 
-addresses should have two properties: it should be difficult to censor specific 
-individual names, and it should also be difficult to take down the system as a 
-whole. For specific names to be difficult to censor, there must be no central 
-authority that has the ability or inclination to take down an individual 
-record. For a system as a whole to be takedown-resistant, the system should be 
-valuable enough to licit actors that authorities cannot block access to it 
-entirely without causing significant collateral damage to benign users.
+From a malware author's perspective, an ideal naming system for C2
+addresses should have two properties: it should be difficult to censor
+specific individual names, and it should also be costly to take down
+or block the system as a whole.  Typically, this first property,
+per-name takedown-resistence, is directly tied to the existence of a
+central authority with the ability to take down an individual record.
+System-wide takedown-resistence, on the other hand, is commonly a
+byproduct of a systems overall utility to legitimate users; potential
+collateral damage to benign users can create strong pressures against
+such takedowns.
 
-To some extent, a trade-off exists between these features. For example,  
-protocols like Tor provide high resistance to the 
-censorship of specific names but also stand out in network traffic because they 
-are rarely used. This gives defenders the option to block all Tor requests 
-entirely, under the assumption that very few licit activities will be 
-disrupted. On the other side of 
-the spectrum, malware has repurposed ubiquitous, benign systems 
-such as social media to store C2 addresses, because defenders do not 
-want to impose blanket bans on applications accessing social 
-media URLs. However, social media companies such as Facebook and 
-Twitter have the capability, motivation, and legal obligation to enforce 
-legal takedown requests on individual posts. Malware authors are incentivized 
-to find naming systems that are neither vulnerable to censorship of individual 
-records nor likely to be blocked or taken down entirely.
+To some extent, a trade-off exists between these features. For
+example, protocols such as Tor provide high resistance to the
+censorship of specific names, but because Tor traffic is both easily
+identified and represents a small volume of users, some defenders will
+simply block Tor alltogether (i.e., under the assumption that any
+damage on benign users will be minor).  On the other side of the
+spectrum, malware has repurposed ubiquitous systems such as social
+media to store C2 addresses, because such traffic does not stand out
+and blanket bans on social media URLs are practically untenable.
+However, social media companies such as Facebook and Twitter have the
+capability, motivation, and (at times) legal obligation to remove abusive posts used to coordinate C2 activity.  Thus, malware authors are
+incentivized to find naming systems that are neither vulnerable to
+censorship of individual records nor likely to be blocked or taken
+down entirely.
 
 \subsection{Tradeoffs of DNS-based C2 names}
 
