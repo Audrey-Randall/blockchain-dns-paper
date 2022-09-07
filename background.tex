@@ -5,9 +5,9 @@ From a malware author's perspective, an ideal naming system for C2
 addresses should have two properties: it should be difficult to censor
 specific individual names, and it should also be costly to take down
 or block the system as a whole.  Typically, this first property,
-per-name takedown-resistence, is directly tied to the existence of a
+per-name takedown-resistance, is directly tied to the existence of a
 central authority with the ability to take down an individual record.
-System-wide takedown-resistence, on the other hand, is commonly a
+System-wide takedown-resistance, on the other hand, is commonly a
 byproduct of a systems overall utility to legitimate users; potential
 collateral damage to benign users can create strong pressures against
 such takedowns.
@@ -16,104 +16,90 @@ To some extent, a trade-off exists between these features. For
 example, protocols such as Tor provide high resistance to the
 censorship of specific names, but because Tor traffic is both easily
 identified and represents a small volume of users, some defenders will
-simply block Tor alltogether (i.e., under the assumption that any
+simply block Tor altogether (i.e., under the assumption that any
 damage on benign users will be minor).  On the other side of the
 spectrum, malware has repurposed ubiquitous systems such as social
 media to store C2 addresses, because such traffic does not stand out
 and blanket bans on social media URLs are practically untenable.
 However, social media companies such as Facebook and Twitter have the
-capability, motivation, and (at times) legal obligation to remove abusive posts used to coordinate C2 activity.  Thus, malware authors are
-incentivized to find naming systems that are neither vulnerable to
+capability, motivation, and (at times) legal obligation to remove
+abusive posts used to coordinate C2 activity.  Thus, malware authors
+are incentivized to find naming systems that are neither vulnerable to
 censorship of individual records nor likely to be blocked or taken
 down entirely.
 
 \subsection{Tradeoffs of DNS-based C2 names}
 
-Traditional DNS is widely used by malware as the naming system for C2 
-servers, but it fulfills only one of the two ideal requirements for malware. 
-The tradeoffs inherent in DNS have created a system of incentives for malware 
-authors and defenders, upon which defenders' current best tools for malware 
-takedowns are based. We now describe the current state of defenses and 
-interventions against malware that uses DNS to contact its C2 servers.
- 
-Since nearly every device and application on the Internet 
-requires DNS, enterprises and firewalls almost never block DNS entirely. 
-However, DNS is subject to a hierarchy of authorities, who may take down abused 
-domains either voluntarily or under legal pressure . Specifically, the 
-registrar that sold a domain can delete it, sinkhole it, or 
-prevent it from being updated or transferred. One of the primary tools that 
-defenders use to take down malware networks is legally compelling registrars to 
-take down C2 domains.
+In part due to its ubiquity, DNS has been one of the most widely used
+naming systems for malware C2 servers.  Because of its central role in
+the Internet's function, DNS naturally satisfies the system-wide
+takedown-resistance requirement; completely blocking DNS would be
+unthinkable for any modern enterprise or ISP.  However, DNS is subject
+to a hierarchy of defined authorities, each of which may disable
+individual domain names, either voluntarily or in response to legal
+compulsion.  For example, the registrar that sold a domain can delete
+it, or sinkhole it (i.e., divert its traffic) and prevent it from
+being subsequently updated or transferred.  Similarly, the registry
+responsible for a domain name's top-level domain (TLD) can also take
+such actions.
 
-\randall{Stefan should look at the following two paragraphs to make this more 
-abstract and also add something abut how this only works in jurisdictions 
-amenable to this kind of coercion.}
-The usual process for enacting a legal takedown in the United States works as 
-follows~\cite{knight_domain_2015}. Upon identifying a domain that is being used 
-as a C2 center, a law enforcement entity may choose to make 
-an Acceptable Use Policy (AUP) complaint, which some registrars comply with 
-voluntarily. They may also choose to legally compel the registrar to take down 
-the domain by 
-seeking a court order. The court order commonly prevents the domain from being 
-updated or transferred rather than deleting it entirely, because if 
-the domain is deleted, it can be re-registered by the malware authors. It also 
-specifies whether the domain should continue to resolve, resolve to a new IP 
-address specified by the order, or stop resolving altogether. 
+Key to all these actions is that there is a singular legal entity with
+the capability to intervene.  In some cases, they may do so
+voluntarily (e.g., such as when a registrar is notified of a violation
+of their terms of service.\footnote{Registrars and hosting providers
+  all typically specify a ``Acceptable Use Policy'' (AUP) in their
+  contracts with third-parties.  The details of these AUPs vary
+  between providers, but it is common that they prohibit activity that
+  is criminal, that violates intellectual property interests, or is
+  highly disruptive.}) but they may also be compelled to take action
+by a court order.  For example, US law enforcement may obtain a
+warrant to seize control of a domain name (subject to a showing of
+probable cause that it is involved in a criminal act), so long as the
+controlling registrar or registry is within US
+jurisdiction.\footnote{This process is described in considerable
+  detail by Knight~\cite{knight_domain_2015}.}  Typically such names
+are not then deleted (which would allow the malware author to
+re-register them), but instead the registrar (or registry) is
+compelled to redirect traffic to a benign site (aka a sinkhole) and
+block any attempts to change or transfer the domain by the registrant.
+Civil litigants can obtain similar effects via Temporary Restraining
+Orders (TRO) typically based on a showing that their intellectual
+property rights are being violated~\cite{kesari_deterring_2017}.
+Microsoft, in particular, has made innovative use of trademark
+protection laws, such as the Lanham Act, to drive expansive
+private-sector botnet takedown efforts~\cite{lerner_microsoft_2014}.
 
-Court orders may be obtained by civil parties as well. The most common method 
-is for a company to 
-apply for a temporary restraining order (TRO), which orders the perpetrators 
-of the offending 
-activity to cease and desist and requires any intermediaries that provide 
-services to the 
-perpetrators to cease providing those services~\cite{kesari_deterring_2017}. 
-The latter requirement 
-is what allows companies to require registrars to ``sinkhole'' C2 
-domains. 
+Today such legal takedowns are a critical tool for defenders to
+disable botnets.  However, the effectiveness of this tool has led
+malware authors to respond by developing Domain Generation Algorithms
+(DGAs) which minimize the impact of any given takedown. When an
+infected host uses a DGA, it can randomly generate a large number of
+domains that its C2 server might be found at. DGAs usually use the
+current date as an input, which allows them to be kept in sync and
+changed on whatever time scale is convenient for the malware
+operators. Only a few of these domains will be registered at a time,
+to prevent defenders from preemptively taking them down. If a domain
+that is currently used to contact the C2 server is seized, the malware
+operators simply register a new one. Upon failing to reach the old C2
+domain, every infected host will begin trying to resolve the rest of
+the names generated by the DGA until they discover the new, working C2
+domain. Thus, to truly takedown such a C2, defenders must register all
+of the domains (or otherwise prevent them from being registered) that
+the DGA can generate~\cite{antonakakis_throw-away_2012}. This
+intervention is costly in effort, but has been used successfully in
+the past~\cite{confickersomething}.
 
-Legal domain takedown orders are a critical tool for defenders to disable 
-botnets. For example, 
-Microsoft obtained various court orders allowing it to sinkhole the C2 servers 
-of the botnet 
-Citadel in 2013. Microsoft successfully argued that Citadel caused the Windows 
-operating system to 
-behave maliciously and frustrate users while still bearing Microsoft 
-trademarks, as well as forcing 
-Microsoft to spend money on security features to combat 
-it~\cite{lerner_microsoft_2014}. The 
-Coreflood, Kelihos, and Rustock botnets were each disabled using legal 
-takedown orders obtained by 
-Microsoft, Pfizer (which claimed to suffer reputational harm because Rustock 
-sent spam emails for 
-counterfeit pharmaceuticals), and the Department of 
-Justice~\cite{kesari_deterring_2017}. 
 
-To complicate the issue, some malware authors have responded to the threat of 
-domain 
-takedowns by developing Domain Generation Algorithms (DGAs). When an infected 
-host uses a DGA, it can randomly generate a large number 
-of domains that its C2 server might be found at. DGAs usually use the current 
-date as an input, which allows them to be kept in sync and changed on whatever 
-time scale is convenient for the malware operators. Only a few of these domains 
-will be registered at a time, to prevent defenders from preemptively taking 
-them down. If a  
-domain that is currently used to contact the C2 server is seized, the malware 
-operators simply register a new one. Upon failing to reach the old C2 domain,  
-every infected host will begin trying to resolve the rest of the names 
-generated by the DGA until they discover the new, working C2 domain. Defenders 
-must register all of the domains that the DGA can generate to evade this threat 
-entirely~\cite{antonakakis_throw-away_2012}. This intervention is costly in 
-terms of money, but has been used successfully in the 
-past~\cite{citation_needed}.
-
-Legal takedowns, whether of a single name or all the names a DGA can generate, 
-are possible for two reasons. First, some centralized entity controls the C2 
-servers' domain names, and thus had the capability to take them down when 
-legally compelled to. Second, this centralized entity was located in a legal 
-jurisdiction that was amenable to such efforts. Malware 
-authors are thus incentivized to find naming systems that are not vulnerable to 
-legal takedowns, either because the authority that can control the names is not 
-in a takedown-amenable jurisdiction, or because no such authority exists.  
+To summarize, DNS-based C2 represent the status quo for modern
+botnets, but are vulnerable to concerted legal takedown efforts.  What
+makes these takedowns possible is the existence of singular entities
+with the capability to unilaterally assert control over individual
+names \emph{and} that those same entities are subject to legal
+jurisdictions available to defenders.  Malware authors are thus
+incentivized to find naming systems that are not vulnerable to such
+efforts, either because the authority that can control the names is
+not in a takedown-amenable jurisdiction, or because no such authority
+exists.
 
 %Botnets 
 %often cycle through domain names and IP addresses for their C2 servers 
