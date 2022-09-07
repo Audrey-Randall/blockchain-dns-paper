@@ -56,7 +56,8 @@ respectively~\cite{ens_website, handshake_website,
 first_ud_txn}). 
 
 All of the blockchain-based naming systems we study differentiate their names 
-from DNS domains by inventing alternate top level domains (alt-TLDs). A 
+from DNS domains by creating alternate top level domains, 
+which we refer to as \emph{alt-TLDs} for brevity. A 
 summary of the alt-TLDs used by each naming system is presented in 
 Table~\ref{tab:proxies_and_tlds}. Handshake names are slightly different, since 
 the goal of the Handshake project is to replace the DNS root zone and make any 
@@ -71,11 +72,12 @@ details.
 \subsection{Naming-Specific Blockchains}
 
 We study three naming systems that are built on 
-naming-specific (and eponymous) blockchains: 
+naming-specific and eponymous blockchains: 
 Namecoin, Emercoin, and Handshake. All of these blockchains 
 are primarily designed to support their naming systems,  
 rather than to create new cryptocurrencies or support arbitrary 
-blockchain-native programs known as ``smart contracts.'' Because these 
+blockchain-native programs (``smart contracts''). Because 
+these 
 blockchains have such specific purposes, they differ 
 from blockchains like Ethereum in two ways: they have fewer 
 participants and users, and their transaction fees are much 
@@ -101,7 +103,8 @@ blocklists). They found that over 50\% of the IPs in Namecoin and Emercoin
 records had been flagged as malicious by at least one threat intelligence 
 service~\cite{casino_unearthing_2021}. Furthermore, Casino et al. used a 
 ``poisoning'' approach to find IP addresses associated with malicious IPs, 
-either because they were stored in the same wallet, the name resolved to them, 
+either because the two addresses were stored in the same 
+wallet, a name resolved to both addresses at different times, 
 or the same email was recorded in their records. This ``poisoning'' approach 
 revealed that the vast majority of IP addresses in Namecoin and Emercoin 
 records are connected in some way to malicious 
@@ -115,9 +118,9 @@ IPs~\cite{casino_unearthing_2021}.
 Our own findings support the conclusion that these naming 
 systems are still rife with abuse (Section~\ref{sec:b-root}). 
 
-The records in these naming systems have been well studied in 
-prior work, so we did not conduct our own study of them, 
-unlike the other three systems we study.
+%The names registered in Namecoin and Emercoin have been well studied in 
+%prior work, so we did not conduct our own study of them, 
+%unlike the other three naming systems we study.
 
 
 \subsubsection{Handshake}
@@ -151,41 +154,40 @@ unlike the other three systems we study.
 \end{table}
 
 Handshake is a blockchain-based naming system that aims to replace the root DNS 
-zone. As such, it offers its users the ability to purchase nearly any string to 
+zone. It offers its users the ability to purchase nearly any 
+string to 
 use as an alt-TLD. Rather than selling second-level domains 
-itself, the Handshake ecosystem purports to allow its users 
+itself, Handshake allows its users 
 to act as registrars who can sell their own domains. 
 Handshake records are designed to store the NS records of traditional 
 authoritative nameservers, rather than to replace DNS A, AAAA, or similar 
-records. However, we note that nothing restricts malware authors from recording 
-the IP addresses of C2 servers as NS records, or running an authoritative 
-nameserver and a C2 server on the same machine. Handshake also allows users to 
+records. Handshake 
+also allows users to 
 store TXT records, which can contain the addresses for decentralized web 
-hosting systems like Skynet or IPFS. Malware users could potentially use 
-Handshake as a naming system to find content stored in 
-content-addressed distributed storage systems. Additionally, Handshake 
+hosting systems like Skynet~\cite{skynet} or IPFS~\cite{ipfs}. Malware 
+operators could 
+potentially use 
+Handshake as a naming system to find C2 content stored in 
+these distributed storage systems. Additionally, Handshake 
 advertises themselves as ``the only naming blockchain with a lightweight 
 recursive DNS resolver, which you can easily embed into 
 browsers, apps, and devices''~\cite{namebase_access_handshake}. 
-This lightweight resolver may be attractive to malware authors because it is 
-small enough to use as part of a malware payload.
+This lightweight resolver may be attractive to malware 
+operators because it is 
+small enough to be part of a malware payload.
 
 %\randall{Summarize the .music debate and cite it somewhere.}
 
 To get a sense for how people use Handshake, we collected a 
-sample of approximately 201,000 recent Handshake names.
-%by 
-%scraping a Handshake block 
-%explorer.\footnote{https://e.hnsfans.com/names} 
-%We 
-%attempted to scrape these names 
-%directly from the Handshake blockchain, but were 
-%unsuccessful because the RPC 
-%provided by the Handshake client to interact with the 
-%Handshake node is no 
-%longer functional: so many names are recorded in the system 
-%that the RPC cannot 
-%return them to the user anymore~\cite{hns_rpc_too_big}. 
+sample of approximately 201,000 recently registered Handshake 
+names by scraping a Handshake block 
+explorer.\footnote{https://e.hnsfans.com/names} 
+We attempted to scrape these names 
+directly from the Handshake blockchain, but were 
+unsuccessful because the RPC 
+provided by the Handshake client to collect registered names 
+from a Handshake node is no 
+longer functional~\cite{hns_rpc_too_big}. 
 Table~\ref{tab:handshake_records} 
 summarizes our findings. At the moment, Handshake names appear to be 
 overwhelmingly utilized as speculative assets. Only 0.14\% of 
@@ -208,10 +210,13 @@ Service (ENS) and Unstoppable Domains. These naming systems
 are possible because of Ethereum's innovation in the 
 blockchain space: \emph{smart contracts.} Smart contracts 
 are code that is embedded into the Ethereum 
-blockchain. Any full node that runs Ethereum can execute any 
+blockchain. Any machine that runs an Ethereum ``full node'' 
+can execute any 
 smart contract. Each contract is identified by a 20-byte 
-address, and makes its functions available through its ABI. 
-Thus, asking a smart contract to execute one of its functions is similar to 
+address, and makes its functions available through its 
+Application Binary Interface (ABI). 
+Thus, asking a smart contract to execute one of its functions 
+is similar to 
 making an RPC call, except that instead of one machine executing the code, 
 every machine that receives the transaction must do so. 
 
@@ -219,8 +224,10 @@ Smart contracts can be used to implement key-value stores, which means they are
 well suited to act as naming 
 systems. For example, in a simplified system, a user might wish to set the name 
 ``foo.crypto'' to resolve to the IP address 1.2.3.4. The user would create an 
-Ethereum transaction that asks the KV store's smart contract 
-to set the record for ``foo.crypto'' to ``1.2.3.4.'' 
+Ethereum transaction that asks the key-value store's smart 
+contract 
+to call its ``set record'' function, with ``foo.crypto'' and 
+``1.2.3.4'' as function inputs. 
 This transaction is then broadcast to the Ethereum network, 
 and every Ethereum 
 node that receives it updates its own copy of the key-value store to include 
@@ -231,7 +238,8 @@ it: any Ethereum node can return a correct response.
 %Ethereum node. In contrast to IPFS, where only one machine stores the content 
 %you're looking for, so taking it down might be a lot easier.
 Notably, any transaction that causes a write costs a ``gas 
-fee'' to complete. Gas fees are dependent on network 
+fee'' of Ethereum cryptocurrency. Gas fees are 
+dependent on network 
 congestion as well as other factors: they incentivize 
 Ethereum node operators to execute smart contract code, which 
 uses computing resources. In contrast, reading a 
@@ -240,12 +248,15 @@ create a transaction.
 
 Interestingly, ENS and Unstoppable Domains are structured 
 like DNS, but they are not necessarily being used as DNS 
-replacements. The language and structure of their smart 
+replacements. The language and structure of both systems' 
+smart 
 contracts implies that they were 
-modeled after DNS: both systems use certain smart contracts 
+modeled after DNS: for example, both systems use certain 
+smart contracts 
 as registries, and ENS even uses others as resolvers and 
 registrars. However, users are primarily using these systems 
-to map human-readable names to \emph{wallet addresses} 
+to map human-readable names to \emph{cryptocurrency wallet 
+addresses} 
 instead of IP addresses. While users can still store IP 
 addresses, traditional domains, TXT records, or DS addresses, 
 very few choose to do so. This may imply that C2 records containing IP 
@@ -283,14 +294,17 @@ addresses or DNS domains will stand out and be easier for defenders to detect.
 ENS names are registered (and resolved) in two steps involving two different 
 smart contracts. First, a name must be registered using the ``ENS Registrar 
 Controller'' smart contract, which accepts the human-readable name and the 
-address of a contract to use as a ``resolver.'' Second, the ``resolver'' 
+address of a contract to use as a ``resolver.'' Second, the 
+resolver
 contract must be updated with the name's records. To complicate matters, names 
 are not handled in their human-readable forms after they are registered: 
-instead, they are referred to by their keccak256 hash.  Furthermore, the ``ENS 
-Registrar Controller'' contract allows users to specify a 
+instead, they are referred to by their keccak256 hash.  
+Furthermore, the ENS 
+Registrar Controller contract allows users to specify a 
 hash instead of a human-readable name, without ever performing a transaction 
 that reveals the name itself. Therefore, to enumerate most of the names in ENS, 
-we had to parse all of the transactions in the ``ENS Registrar Controller'' 
+we had to parse all of the transactions in the ENS Registrar 
+Controller 
 contract that recorded new hashes of names. We then queried the associated 
 resolvers to discover the human-readable names. At the time of writing, at 
 least 504 smart contracts had been set as resolvers for at least one name hash.
@@ -300,16 +314,18 @@ is long-tailed: the majority of resolvers resolve only a few names, while the
 eight most popular resolvers resolve the majority of names. We excluded 
 addresses that were set as resolvers by many names but did not implement the 
 ENS resolver specification, under the assumption that these were mistakes. 
-Such misconfigured resolver addresses include the null address, 0x0, as well as 
-other unrelated smart contracts used by the ENS ecosystem. The resolvers we 
-chose are detailed in Table~\ref{tab:ens_resolvers}. This approach yielded a 
-sample of 667,369 ENS names that were registered through the Registrar 
-Controller contract. 
-
-Prior work has found that even collecting transactions from 
-the Registrar Controller (and its historical 
-predecessors) yields hashes that do not resolve to 
-names~\cite{xia_ens_2022}. It is unclear how these names and 
+Such misconfigured resolver addresses include the null 
+address, 0x0, as well as unrelated smart contracts used by 
+the ENS ecosystem. The resolvers we 
+chose are detailed in Table~\ref{tab:ens_resolvers}. This 
+approach yielded a 
+sample of 667,369 ENS names that were registered through the 
+ENS Registrar Controller contract. Prior work has found that 
+even after collecting all transactions from 
+the ENS Registrar Controller and its historical 
+predecessors, some hashes appear in the system but have never been seen to 
+resolve to 
+names~\cite{xia_ens_2022}. It is unclear how these 
 hashes came to exist, so we note that our sample does not 
 contain all of the names in ENS, just the majority.
 
@@ -336,7 +352,8 @@ contain all of the names in ENS, just the majority.
 
 
 Figure~\ref{fig:ens_records} shows the distribution of the types of records 
-stored by our sample of names. The majority resolve to wallet addresses or text 
+stored in ENS for our sample of names. The majority resolve 
+to wallet addresses or text 
 records, not IP addresses, traditional domains, or DS addresses. We broke down 
 the text records, which are key/value pairs, by the most common key names: 
 these keys are marked with an asterisk. Only the most common 25 keys are shown. 
@@ -378,10 +395,7 @@ added UNS
 (the Unstoppable Name System), which simplified name resolution by 
 combining the resolver and registry contracts, and added several 
 new alt-TLDs. Unstoppable Domains names never have to be renewed; they are 
-purchased once and then owned indefinitely. This is primarily 
-because Unstoppable Domains does not have the capability to 
-reclaim a name unless the private key of the owning wallet is 
-known to them.
+purchased once and then owned indefinitely.
 
 Like ENS names, Unstoppable Domains names are referenced by their hashes. We 
 extracted all hashes from the UNS and CNS registry contracts 
@@ -402,10 +416,7 @@ ENS, the majority of names have wallet records rather than
 records that point to websites in any way. The second most common 
 type of record is ``whois.for\_sale.value,'' showing that many 
 names are seen as speculative assets. Unstoppable Domains also 
-provides an easy way for users to link to IPFS records. IPFS, 
-the ``Inter-Planetary File System,'' is a distributed 
-blockchain-based hosting service that allows users to host 
-static websites.
+provides an easy way for users to link to IPFS records.
 
 We performed a web crawl of all of the Unstoppable names that 
 had records pointing to websites, whether IPFS records, 

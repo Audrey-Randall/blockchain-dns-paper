@@ -1,4 +1,4 @@
-\section{Accessing records}
+\section{Intervention Locations}
 \label{sec:accessing_records}
 
 \begin{figure*}[t]
@@ -13,8 +13,10 @@
 We have established that malware requires a naming layer to access its C2 
 centers, and 
 that blockchain-based naming systems are attractive options for implementing 
-such a naming layer. We have also examined several naming systems individually. 
-We now argue that blockchain-based naming systems share certain common 
+such a naming layer. We have also examined five naming 
+systems individually. 
+We now argue that all blockchain-based naming systems share 
+certain common 
 challenges, and the way these systems overcome these challenges presents 
 different advantages or disadvantages for defenders. The first 
 of these fundamental challenges is accessing the blockchain.
@@ -264,9 +266,14 @@ prevent malware accessing a C2 domain record. This
 intervention is impractical for blockchain names, 
 because instead of a single machine acting as the 
 authoritative nameserver, every blockchain node has a copy of 
-the database. Seizing the database would require taking down 
-every machine in the blockchain, which is an attack that 
-blockchains are highly robust against.
+the database. Seizing the database would require either taking down 
+every machine in the blockchain, or executing a successful ``51\%'' attack by 
+taking control of more than half of the computing power in the blockchain. 
+Blockchains are generally highly robust against attacks like these, which makes 
+them unlikely to be the most practical intervention for defenders to attempt. 
+However, small naming-specific
+blockchains with few participants may be more vulnerable --- see 
+Section~\ref{sec:namecoin_51}.
 
 \subsection{Interventions after the name record is acquired}
 \label{sec:interventions_at_name}
@@ -289,25 +296,24 @@ systems provide a form of ``bulletproof'' hosting, under the limitation
 that all hosted content must be static files and not dynamic 
 websites. Any C2 server implemented entirely on such a 
 system must be a simple file with no 
-dynamic content. Additionally, today's DS systems are 
-content-addressed, which requires malware operators to use a 
-naming layer rather than hard-coding the DS address of 
-their C2 server into their payloads. If the file that 
-represents the C2 server changes, its address will change as 
-well, because the address is created from a hash of the file. The naming layer 
-required to reach the DS system is subject to the same interventions as any 
-other request to a blockchain.
+dynamic content. Infected hosts that wish to contact a distributed storage 
+system must pass through the same steps shown in 
+Figure~\ref{fig:malware_contacting_cnc} for accessing a blockchain, which means 
+they are subject to the same interventions. For example, a strain of malware 
+called ``IPStorm'' has already been discovered using IPFS for its C2 server in 
+the wild. IPStorm connects to IPFS using bootstrap nodes~\cite{ipstorm_anomali, 
+ipstorm_zdnet}, which may be seized or blocked.
 
-In another advantage for defenders, some DS systems such as IPFS do not 
-have redundancy: only a single machine hosts each piece of a file. This raises 
-the possibility of discovering the particular machine responsible for hosting a 
-C2 server and seizing it. 
+Another advantage for defenders is that some distributed storage systems, 
+such as IPFS, do not have redundancy: only a single machine hosts each piece of 
+a file. This raises the possibility of discovering the particular machine 
+responsible for hosting a C2 server and seizing it. 
 
 A final possibility for intervening with the name record may be to seize 
-names that are stored in ``hosted'' or ``custodial'' wallets. Businesses such 
+names stored in ``hosted'' or ``custodial'' wallets. Businesses such 
 as cryptocurrency exchanges provide custodial wallets for users who wish to let 
 the company handle their blockchain-based assets. This service is designed to 
-make blockchain interaction easier for customers, but it means that the 
+make blockchain interaction easier for customers, but as a consequence, the 
 business knows the custodial wallet's private key. If a name is stored in a 
 custodial wallet, the business that runs the wallet 
 could seize it~\cite{pegoraro_blockchain_2021}. However, a 

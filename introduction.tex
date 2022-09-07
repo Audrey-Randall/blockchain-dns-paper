@@ -38,9 +38,11 @@
 %	such as blockchain DNS.
 %\end{itemize}
 
-Malware that is distributed across multiple machines needs a way to distribute 
+Malware that is distributed across multiple hosts 
+needs a way to distribute 
 commands, upload stolen 
-data, and coordinate between infected hosts. Most malware, such as botnets or 
+data, and coordinate between infected machines. Most malware, 
+such as botnets or 
 ransomware, uses a 
 central command and control (C2) server for this task. However, as a single 
 point of failure, a 
@@ -48,13 +50,16 @@ central C2 server presents an obvious weak link for defenders to
 target~\cite{kesari_deterring_2017}. 
 Malware authors must therefore be able to easily relocate and replace a C2 
 server after a defender 
-takedown. All previously infected hosts must be able to find the new server at 
+takedown. Furthermore, all previously infected hosts must be 
+able to find the new server at 
 its new address, 
 without outside coordination --- if they cannot, they become useless. Malware 
 authors avoid 
-this ``sunk cost'' problem by providing a layer of indirection --- a naming 
-layer --- instead of 
-hard-coding a fixed C2 server address directly into deployed malware. This 
+this ``sunk cost'' problem by providing a layer of 
+indirection --- a \emph{naming 
+layer} --- instead of 
+hard-coding a fixed address directly into deployed malware. 
+This 
 naming layer must be 
 resilient to takedown efforts.
 
@@ -67,13 +72,13 @@ algorithms),
 to cycle through domains and complicate defense efforts. 
 However, 
 DNS domains are subject 
-to central authorities (registrars), who may be compelled to 
+to centralized authorities such as registrars, who may be 
+compelled to 
 seize or deny access to abused 
 domains. Malware 
 authors have recently come up with an innovative solution to this risk: they 
 have started to use 
-\emph{decentralized naming systems}, in particular naming systems built on 
-blockchains. 
+\emph{blockchain-based naming systems}. 
 
 Blockchain naming systems present several potential 
 challenges for 
@@ -84,41 +89,48 @@ in malware defenders' arsenals. Second, some blockchain
 naming systems 
 have high transaction costs to register and manage domains, 
 which renders some existing defense 
-strategies ineffective. For example, registering all domains 
+strategies ineffective. For example, registering all the 
+domains 
 that a DGA can generate 
 is impractical in expensive blockchain naming systems. 
 However, blockchain naming systems 
-present challenges to malware authors as well, such as how to stealthily access 
-the system.
+present challenges to malware authors as well, such as the 
+difficulty of stealthily accessing the blockchain.
 
 We study the blockchain naming ecosystem and point out 
 several places where defender interventions are still 
-possible. In particular, we argue that infected hosts must 
-pass through infrastructure that is at least 
-partially centralized to access any blockchain naming system, 
-and these centralized or partially centralized 
-``chokepoints'' still present viable locations to stage 
-interventions. We also study five existing decentralized, 
+possible. In particular, we argue that name resolution 
+requests must 
+pass through centralized or partially centralized 
+infrastructure to access any blockchain naming system. These 
+centralized ``chokepoints'' still present viable locations 
+for defenders to stage interventions. We also study five 
+existing 
 blockchain-based naming systems, and discuss the challenges 
 and advantages that each present to malware authors and 
-defenders. We conclude that which blockchain 
+defenders. 
+\randall{we perform a measurement study of multiple major naming systems on how 
+malware is currently them and conclude that some systems are used and others 
+are not. Make another paragraph?}
+We conclude that while blockchain 
 naming systems present a significant threat, defenders still 
 have viable options for enacting C2 takedowns.
 
-The remainder of this paper is organized as follows. 
-Section~\ref{sec:background} describes how malware currently 
-uses DNS domains to contact C2 servers, how defenders 
-stage interventions against these domains, and how blockchain 
-naming systems render these interventions ineffective. 
-Section~\ref{sec:naming_systems} gives an overview of the 
-five most widely adopted blockchain naming systems. 
-Sections~\ref{sec:accessing_records} describes where defenders 
-can intervene in malware's attempts to access naming systems 
-and control naming records. Section~\ref{sec:case_studies} 
-lists three case studies of interventions against blockchain names and their 
-lessons for defenders. Section~\ref{sec:b-root} details 
-measurements of how blockchain naming systems are used by 
-malware today. Section~\ref{sec:discussion} discusses the 
-theoretical requirements for a naming system to be a threat, 
-Section~\ref{sec:related} presents related work, and 
-Section~\ref{sec:conclusion} concludes.
+%The remainder of this paper is organized as follows. 
+%Section~\ref{sec:background} describes how malware currently 
+%uses DNS domains to contact C2 servers, how defenders 
+%stage interventions against these domains, and how blockchain 
+%naming systems render these interventions ineffective. 
+%Section~\ref{sec:naming_systems} gives an overview of the 
+%five most widely adopted blockchain naming systems. 
+%Sections~\ref{sec:accessing_records} describes where defenders 
+%can intervene in malware's attempts to access naming systems 
+%and control naming records. Section~\ref{sec:case_studies} 
+%lists several case studies of interventions against 
+%blockchain names and their 
+%lessons for defenders. Section~\ref{sec:b-root} details how 
+%blockchain naming systems are used by 
+%malware today. Section~\ref{sec:discussion} discusses the 
+%theoretical requirements for a naming system to be a threat, 
+%Section~\ref{sec:related} presents related work, and 
+%Section~\ref{sec:conclusion} concludes.
