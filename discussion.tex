@@ -1,15 +1,6 @@
 \section{Discussion}
 \label{sec:discussion}
 
-So far, we have not found evidence that malware authors are 
-transitioning to Ethereum-based naming services. We suspect that the high 
-cost of creating and modifying names in comparison to naming-specific systems, 
-like Namecoin and Emercoin, is a 
-factor in the apparent low adoption rate. 
-
-
-\section{What might cause a naming system to present a threat?}
-
 Out of the five naming systems we examine, we find none so far that present an 
 entirely intractable problem for defenders. For a naming system to present a  
 threat, it must be both easily usable by malware authors and 
@@ -23,7 +14,8 @@ easy or easier than name management on traditional DNS domains. Users must not
 be required to write 
 code themselves to interact with smart contracts, as is currently the case with 
 each of the systems we 
-study. Users also must not be required to run a blockchain node in order to 
+study if the user does not use a custodial wallet. Users also 
+must not be required to run a blockchain node in order to 
 manage their names, as 
 Handshake currently requires to the best of our knowledge.
 
@@ -45,13 +37,14 @@ better known, and therefore more likely to be trusted by users even if
 transaction fees are higher 
 than on naming-specific chains. A trade-off may therefore exist between 
 affordability and perceived 
-trustworthiness and name recognition. 
+trustworthiness and name recognition.  
 
 Third, licit users are unlikely to embrace any naming system that does not have 
 widespread browser 
 adoption. Browser adoption is hindered by naming systems' lack of coordination, 
 which currently leads 
-to name collisions: for example, the alternate TLDs \texttt{.wallet}, 
+to name collisions: for example, the alt-TLDs 
+\texttt{.wallet}, 
 \texttt{.coin}, and \texttt{.x} 
 are currently used by multiple blockchain naming systems. Some newly created 
 ICANN TLDs also collide 
@@ -70,3 +63,10 @@ that might collide with
 either each other or ICANN TLDs. Until browsers can resolve an alternate naming 
 system natively, users 
 are unlikely to adopt that naming system.
+
+We conclude that the higher ease of use of purchasing, 
+modifying, and resolving traditional DNS 
+domains is a very high barrier for blockchain-based naming 
+systems to overcome. As long as blockchain naming systems are 
+not widely adopted, we predict they will not become entirely 
+intractable problems for defenders.
