@@ -10,52 +10,53 @@
 	\label{fig:malware_contacting_cnc}
 \end{figure*}
 
-We have established that malware requires a naming layer to access its C2 
-centers, and 
-that blockchain-based naming systems are attractive options for implementing 
-such a naming layer. We have also examined five naming 
-systems individually. 
-We now argue that all blockchain-based naming systems share 
-certain common 
-challenges, and the way these systems overcome these challenges presents 
-different advantages or disadvantages for defenders. The first 
-of these fundamental challenges is accessing the blockchain.
-
-Accessing any distributed, peer-to-peer system for the first time requires 
-learning the address of at least one participating node. In general, there 
-are two methods for finding such an address: connecting to a 
-proxy that already knows how to reach a member of the system, or acting 
-as a full member of the system and utilizing its peer-to-peer discovery 
-protocol. The latter approach requires knowing a list of ``bootstrap nodes.'' 
-For example, Ethereum uses a list of bootstrap nodes that are hard-coded into 
-client implementations~\cite{geth_bootstrap}. Bitcoin 
-stores lists of bootstrap nodes in DNS TXT records maintained by volunteers, as 
-well as hard-coded 
-lists~\cite{bitcoin_bootstrap}. A third option, a 
-local discovery protocol that floods the network with 
-messages looking for nodes, has not been adopted by any 
-blockchains that we are aware of. Such an approach would only be successful if 
-nodes running the blockchain were present on most networks. 
- 
-Figure~\ref{fig:malware_contacting_cnc} compares the steps an infected host 
-takes to resolve a DNS C2 domain to the steps required to resolve a blockchain 
-name. It also details the interventions that can be taken by defenders at each 
-step. We now describe each step in detail.
+We have established that blockchain-based naming systems are 
+attractive options for malware to record C2 server addresses, 
+and examined five naming systems individually. We now observe 
+that all of these naming systems --- indeed, all 
+blockchain-based systems in general --- share a 
+common challenge: accessing the blockchain in the first 
+place. The steps 
+required to access a blockchain naming system differ from, 
+but are analogous to, the steps required to resolve a DNS 
+domain. Figure~\ref{fig:malware_contacting_cnc} compares the 
+steps an infected host takes to resolve a DNS C2 domain 
+(shown in orange) to 
+the steps required to resolve a blockchain 
+name (shown in green). It also details the interventions that 
+can be staged by 
+defenders at each step of the process. We now describe each 
+step in detail. For certain interventions at certain steps, 
+we also present cases where the intervention has already been 
+attempted in the wild, the results, and the lessons the 
+intervention provides for defenders. 
 
 \subsection{Reaching the resolver}
 
-Regardless of whether a request is destined for DNS or a blockchain naming 
-system, it must first reach the machine that acts as a resolver: either the DNS 
-resolver or the proxy in Figure~\ref{fig:malware_contacting_cnc}. Defenders may 
-be able to intervene before this point by placing middleboxes with filter lists 
-in the network. Some networks already have such defenses: for example, some ISP 
-networks redirect all DNS requests to the ISP's own resolver, which can 
-implement a filter list. This defense is probably not currently intended to 
-block blockchain names, but it works by chance in some cases. Some malware uses 
-ordinary DNS rather than DNS-over-HTTPS to request blockchain domains, under 
-the assumption that the proxy the query is intended for will redirect it to the 
-blockchain naming system in the correct format. When ISPs perform DNS 
-redirection to their own resolvers, these queries get redirected to the DNS 
+Regardless of whether a request is destined for DNS or a 
+blockchain naming 
+system, it must first reach the machine that acts as a 
+resolver: either the DNS 
+resolver or the proxy in 
+Figure~\ref{fig:malware_contacting_cnc}. Defenders may 
+be able to intervene before this point by placing middleboxes 
+with filter lists 
+in the network. Some networks already have such defenses: for 
+example, some ISP 
+networks redirect all DNS requests to the ISP's own resolver, 
+which can 
+implement a filter list. This defense is probably not 
+currently intended to 
+block blockchain names, but it works by chance in some cases. 
+Some malware uses 
+ordinary DNS rather than DNS-over-HTTPS to request blockchain 
+domains, under 
+the assumption that the proxy the query is intended for will 
+redirect it to the 
+blockchain naming system in the correct format. When ISPs 
+perform DNS 
+redirection to their own resolvers, these queries get 
+redirected to the DNS 
 root, which cannot resolve the alt-TLDs used by blockchain naming systems. We 
 present our study of this phenomenon in Section~\ref{sec:b-root}. We observe 
 that filter lists are only a partial defense against malware, because malware 
@@ -63,8 +64,10 @@ may utilize DGAs to evade them.
 
 \subsection{Interventions at the name resolver}
 
-When using blockchain naming systems, the entity that first attempts to resolve 
-a request is a proxy rather than a pure DNS resolver. It may expect queries in 
+When resolving DNS domains, the entiy that first attempts to 
+respond to the request is a DNS resolver. When using 
+blockchain naming systems, this entity is a proxy instead. It 
+may expect queries in 
 the form of DNS-over-HTTPS, unencrypted DNS, or in an 
 arbitrary format. Instead of querying the DNS root zone, the 
 TLD resolver, and eventually the authoritative nameserver to 
@@ -143,11 +146,11 @@ powerful machine. Two resources serve as
 the constraints: first, CPU power, which is obviously 
 necessary to perform mining but now is even a bottleneck for 
 transaction verification, because so many transactions happen 
-per second~\cite{citation_needed}. Second, disk 
-space and speed. For example, a full Ethereum node cannot be 
-run on a machine with a hard disk drive anymore, because 
-nothing slower than an SSD can keep up with the 
-reads and writes required~\cite{citation_needed}. These 
+per second. Second, disk space and speed. For example, a full 
+Ethereum node cannot be run on a machine with a hard disk 
+drive anymore, because nothing slower than a solid state 
+drive can keep up with the reads and writes 
+required~\cite{geth_faq}. These 
 resource constraints make it 
 very unlikely that malware could run ``full'' blockchain 
 nodes on infected hosts. However, these constraints have also
@@ -169,7 +172,15 @@ using a centralized proxy. In this case, defenders are left
 with a harder location to stage an intervention: the 
 blockchain's bootstrap nodes, which is the blockchain 
 equivalent of a service that locates the database of naming 
-records.
+records. Blockchains use various methods to publish bootstrap 
+node addresses for their users. For 
+example, Ethereum uses a list of bootstrap nodes 
+that are hard-coded into 
+client implementations~\cite{geth_bootstrap}. Bitcoin 
+stores lists of bootstrap nodes in DNS TXT records maintained 
+by volunteers, as 
+well as hard-coded 
+lists~\cite{bitcoin_bootstrap}.
 
 %Most peer-to-peer discovery 
 %protocols allow a client to connect to the blockchain for 
